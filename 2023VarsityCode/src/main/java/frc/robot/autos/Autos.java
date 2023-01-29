@@ -104,6 +104,10 @@ public final class Autos {
         return followTrajectory(goToPoint(pointX, pointY, RobotContainer.s_Swerve.getPose()));
     }
 
+    /**
+     * Blank Autonomous to be used as default dashboard option
+     * @return Autonomous command
+     */
     public static Command none(){
         return Commands.none();
     }
