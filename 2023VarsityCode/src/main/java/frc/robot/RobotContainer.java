@@ -68,6 +68,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("SingleConeAuto", Autos.singleCone());
     m_AutoChooser.addOption("PathPlanner Test", Autos.exampleAuto());
     m_AutoChooser.addOption("Micheals Eyes Worst Nightmare", Autos.blindMike());
+    m_AutoChooser.addOption("Balance", Autos.balanceCommad());
 
     SmartDashboard.putData(m_AutoChooser);
 

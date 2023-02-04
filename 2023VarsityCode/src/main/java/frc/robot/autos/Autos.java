@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
@@ -111,17 +112,24 @@ public final class Autos {
     }
 
     public static Command singleCone(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("SingleConeAuto",
-        new PathConstraints(3, 1)));
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("FullAuto",
+            new PathConstraints(3, 1))).andThen(
+                balanceCommad()
+            );
     }
 
     public static Command blindMike(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("TheBlindingOfMicheal", 
-        new PathConstraints(2, 1)));
+            new PathConstraints(2, 1)));
     }
 
     public static Command goToPoint(double pointX, double pointY){;
         return followTrajectory(goToPoint(pointX, pointY, RobotContainer.s_Swerve.getPose()));
+    }
+
+    public static Command balanceCommad(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("BalanceTest",
+            new PathConstraints(2, 1)));
     }
 
     /**
