@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public final class Autos {
@@ -70,22 +71,31 @@ public final class Autos {
             );
     }
 
+    /*
+     * Possible waypoint angle calculation
+     *      90+Math.tan(
+            (swervePose.getX()-RobotContainer.stationSelector.getStagePoint()[0])/
+            (swervePose.getY()-RobotContainer.stationSelector.getStagePoint()[1])))
+     */
+
     public static PathPlannerTrajectory runToPlace(Pose2d swervePose){
+        double adj = (swervePose.getY() > RobotContainer.stationSelector.getStagePoint()[1])? -1.0:1.0;
+        double yaw = RobotContainer.s_Swerve.getYaw().getDegrees();
         return PathPlanner.generatePath(
             new PathConstraints(2, 1.5),
-            new PathPoint(swervePose.getTranslation(), Rotation2d.
-                fromDegrees(90+Math.tan((swervePose.getX()-RobotContainer.stationSelector.getStagePoint()[0])/
-                (swervePose.getY()-RobotContainer.stationSelector.getStagePoint()[1]))), Rotation2d.fromDegrees(0)),
+            new PathPoint(swervePose.getTranslation(), 
+                Rotation2d.fromDegrees(adj*90), 
+                0),
             new PathPoint(new Translation2d(
                 RobotContainer.stationSelector.getStagePoint()[0], 
                 RobotContainer.stationSelector.getStagePoint()[1]), 
-                Rotation2d.fromDegrees(-90), 
-                Rotation2d.fromDegrees(0)),
-                new PathPoint(new Translation2d(
-                    RobotContainer.stationSelector.getPlacePoint()[0], 
-                    RobotContainer.stationSelector.getPlacePoint()[1]), 
-                    Rotation2d.fromDegrees(-90), 
-                    Rotation2d.fromDegrees(0))
+                Rotation2d.fromDegrees(adj*45), 
+                Rotation2d.fromDegrees(180-yaw)),
+            new PathPoint(new Translation2d(
+                RobotContainer.stationSelector.getPlacePoint()[0], 
+                RobotContainer.stationSelector.getPlacePoint()[1]), 
+                Rotation2d.fromDegrees(-180), 
+                Rotation2d.fromDegrees(180-yaw))
             );
     }
     
