@@ -29,6 +29,7 @@ public class Swerve extends SubsystemBase {
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, "DriveMotorBus");
         gyro.setYaw(0);
+        gyro.configMountPoseRoll(-1.35);
         zeroGyro(0);
         
         mSwerveMods = new SwerveModule[] {
@@ -135,10 +136,19 @@ public class Swerve extends SubsystemBase {
      */
     public void zeroGyro(double angle){
         gyro.setYaw(angle);
+        gyro.configMountPoseRoll(-1.35);
     }
 
     public Rotation2d getYaw() {
         return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - gyro.getYaw()) : Rotation2d.fromDegrees(gyro.getYaw());
+    }
+
+    /**
+     * TODO fix
+     * @return The roll of the robot with forward being negative
+     */
+    public double getRoll(){
+        return gyro.getRoll();
     }
     
     
@@ -153,6 +163,7 @@ public class Swerve extends SubsystemBase {
     public void periodic(){
         swerveOdometry.update(getYaw(), getPositions());
         SmartDashboard.putNumber("Gyro Angle", getYaw().getDegrees());
+        SmartDashboard.putNumber("Gyro Roll", getRoll());
 
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());

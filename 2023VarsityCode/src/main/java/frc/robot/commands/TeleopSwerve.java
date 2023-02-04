@@ -6,7 +6,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 //import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,6 +25,9 @@ public class TeleopSwerve extends CommandBase {
     
     private Swerve s_Swerve;
     private CommandPS4Controller controller;
+
+    private double kP = 0.015, kI = 0.0, kD = 0.007;
+    private PIDController balancePID = new PIDController(kP, kI, kD);
 
     private final Field2d m_field = new Field2d();
     private Pose2d startPose = new Pose2d(Units.inchesToMeters(177), Units.inchesToMeters(214), Rotation2d.fromDegrees(0));
@@ -50,6 +54,11 @@ public class TeleopSwerve extends CommandBase {
 
 
         SmartDashboard.putData("Field", m_field);
+
+        SmartDashboard.putNumber("Balance kP", kP);
+        SmartDashboard.putNumber("Balance kI", kI);
+        SmartDashboard.putNumber("Balance kD", kD);
+
         m_field.setRobotPose(startPose);        
     }
 
@@ -59,11 +68,23 @@ public class TeleopSwerve extends CommandBase {
         double xAxis = -controller.getLeftX();
         double rAxis = -controller.getRightX();
 
+        balancePID.setP(SmartDashboard.getNumber("Balance kP", kP));
+        balancePID.setI(SmartDashboard.getNumber("Balance kI", kI));
+        balancePID.setD(SmartDashboard.getNumber("Balance kD", kD));
+
         /* Deadbands */
         
         yAxis = (Math.abs(yAxis) < Constants.stickDeadband) ? 0 : yAxis;
         xAxis = (Math.abs(xAxis) < Constants.stickDeadband) ? 0 : xAxis;
-        rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;      
+        rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;   
+        
+        boolean fieldRelative = true;
+        if(controller.cross().getAsBoolean()){
+            xAxis = 0.0;
+            rAxis = 0.0;
+            yAxis = -MathUtil.clamp(balancePID.calculate(s_Swerve.getRoll(), 0.0), -0.12, 0.12);
+            fieldRelative = false;
+        }
         
         /*
         rAxis *= 0.75;
@@ -76,7 +97,7 @@ public class TeleopSwerve extends CommandBase {
 
         translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
         rotation = rAxis * Constants.Swerve.maxAngularVelocity;
-        s_Swerve.drive(translation, rotation, true, openLoop);
+        s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
 
         m_field.setRobotPose(s_Swerve.getPose());
 
