@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Balance;
 
 public final class Autos {
 
@@ -33,7 +34,8 @@ public final class Autos {
         Map.entry("example2", Commands.print("Example 2 triggered")),
         Map.entry("example3", Commands.print("Example 3 triggered")),
         Map.entry("lime", new InstantCommand(() -> NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3))),
-        Map.entry("stop", new InstantCommand(() -> RobotContainer.s_Swerve.drive(new Translation2d(0,0), 0, true, true)))
+        Map.entry("stop", new InstantCommand(() -> RobotContainer.s_Swerve.drive(new Translation2d(0,0), 0, true, true))),
+        Map.entry("balance", new Balance(RobotContainer.s_Swerve))
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
