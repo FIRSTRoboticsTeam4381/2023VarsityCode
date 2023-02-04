@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public final class Autos {
@@ -71,13 +70,22 @@ public final class Autos {
             );
     }
 
-    public static PathPlannerTrajectory tag1(Pose2d swervePose){
+    public static PathPlannerTrajectory runToPlace(Pose2d swervePose){
         return PathPlanner.generatePath(
             new PathConstraints(2, 1.5),
-            new PathPoint(swervePose.getTranslation(), Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)),
-            new PathPoint(new Translation2d(14.4, 4.625), Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(0)),
-            new PathPoint(new Translation2d(14.4, 1.020), Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(0)),
-            new PathPoint(new Translation2d(14.755, 1.020), Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0))
+            new PathPoint(swervePose.getTranslation(), Rotation2d.
+                fromDegrees(90+Math.tan((swervePose.getX()-RobotContainer.stationSelector.getStagePoint()[0])/
+                (swervePose.getY()-RobotContainer.stationSelector.getStagePoint()[1]))), Rotation2d.fromDegrees(0)),
+            new PathPoint(new Translation2d(
+                RobotContainer.stationSelector.getStagePoint()[0], 
+                RobotContainer.stationSelector.getStagePoint()[1]), 
+                Rotation2d.fromDegrees(-90), 
+                Rotation2d.fromDegrees(0)),
+                new PathPoint(new Translation2d(
+                    RobotContainer.stationSelector.getPlacePoint()[0], 
+                    RobotContainer.stationSelector.getPlacePoint()[1]), 
+                    Rotation2d.fromDegrees(-90), 
+                    Rotation2d.fromDegrees(0))
             );
     }
     

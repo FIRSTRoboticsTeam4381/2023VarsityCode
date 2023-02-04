@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -28,15 +29,24 @@ import frc.robot.subsystems.*;
  */
 public class RobotContainer {
   /* Controllers */
-  private final CommandPS4Controller controller = new CommandPS4Controller(0);
+  private final CommandPS4Controller driveController = new CommandPS4Controller(0);
+  private final CommandPS4Controller specialsController = new CommandPS4Controller(1);
 
   /* Driver Buttons */
-  private final Trigger zeroSwerve = controller.options();
-  private final Trigger lime = controller.circle();
+  private final Trigger zeroSwerve = driveController.options();
+ //private final Trigger lime = controller.circle();
 
-  private final Trigger leftDpad = controller.povLeft();
-  private final Trigger rightDpad = controller.povRight();
-
+  public static StationSelector stationSelector;
+  private final Trigger leftDpad = specialsController.povLeft();
+  private final Trigger rightDpad = specialsController.povRight();
+  private final Trigger topDpad = specialsController.povUp();
+  private final Trigger bottomDpad = specialsController.povDown();
+  private final Trigger circle = driveController.circle();
+  private final Trigger square = driveController.square();
+  private final Trigger triangle = driveController.triangle();
+  private final Trigger rBumper = driveController.R1();
+  private final Trigger lBumper = driveController.L1();
+  
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
 
@@ -48,7 +58,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    s_Swerve.setDefaultCommand(new TeleopSwerve(s_Swerve, controller, true));
+    s_Swerve.setDefaultCommand(new TeleopSwerve(s_Swerve, driveController, true));
     
     // Configure the button bindings
     configureButtonBindings();
@@ -62,6 +72,10 @@ public class RobotContainer {
     SmartDashboard.putData(m_AutoChooser);
 
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
+
+    stationSelector = new StationSelector(DriverStation.getAlliance());
+
+    
   }
 
   /**
@@ -77,14 +91,24 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
       .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));
 
-    leftDpad.onTrue(
-      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        Autos.followTrajectory(Autos.tag1(s_Swerve.getPose())
-      ))));
+
     
-    rightDpad.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+    triangle.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().schedule(
       Autos.goToPoint(9.9, 3.5)
     )));
+    
+
+    leftDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("L")));
+    rightDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("R")));
+    topDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
+    bottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
+    circle.onTrue(new InstantCommand(() -> stationSelector.clearKeystroke()));
+
+    rBumper.and(lBumper).onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        Autos.followTrajectory(Autos.runToPlace(s_Swerve.getPose())
+      ))));
+
       /**
        * Note to self:
        * Teleop Swerve is a default command, meaning anything scheduled that uses drive will take over

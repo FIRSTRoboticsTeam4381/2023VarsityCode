@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
+//import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,11 +28,13 @@ public class TeleopSwerve extends CommandBase {
     private final Field2d m_field = new Field2d();
     private Pose2d startPose = new Pose2d(Units.inchesToMeters(177), Units.inchesToMeters(214), Rotation2d.fromDegrees(0));
 
+    /*
     private final int limit = 5;
     private final SlewRateLimiter m_ForwardBackLimit = new SlewRateLimiter(limit);
     private final SlewRateLimiter m_SideSideLimit = new SlewRateLimiter(limit);
     private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(limit);
-    
+    */
+
     /**
      * Driver Control command
      * @param s_Swerve Swerve subsystem
