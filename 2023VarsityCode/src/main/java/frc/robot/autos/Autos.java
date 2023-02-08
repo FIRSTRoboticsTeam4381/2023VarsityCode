@@ -50,7 +50,7 @@ public final class Autos {
         true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
         RobotContainer.s_Swerve // The drive subsystem. Used to properly set the requirements of path following commands
     );
-
+    
     public static PPSwerveControllerCommand followTrajectory(PathPlannerTrajectory traj){
         return new PPSwerveControllerCommand(
             traj, 

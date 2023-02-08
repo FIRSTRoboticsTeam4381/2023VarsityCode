@@ -92,19 +92,13 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
       .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));
 
-
-    
-    triangle.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-      Autos.goToPoint(9.9, 3.5)
-    )));
     
 
     leftDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("L")));
     rightDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("R")));
     topDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
     bottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
-    circle.onTrue(new InstantCommand(() -> stationSelector.clearKeystroke()));
-
+    
     rBumper.and(lBumper).onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         Autos.followTrajectory(Autos.runToPlace(s_Swerve.getPose())

@@ -57,7 +57,7 @@ public class Swerve extends SubsystemBase {
      * @param isOpenLoop True
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-
+        /*
         SwerveModuleState[] swerveModuleStates =
             Constants.Swerve.swerveKinematics.toSwerveModuleStates(DriftCorrection.driftCorrection(
                 fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -71,6 +71,20 @@ public class Swerve extends SubsystemBase {
                                     translation.getY(), 
                                     rotation), 
                                 swerveOdometry.getPoseMeters())
+                                );
+        */
+        SwerveModuleState[] swerveModuleStates =
+            Constants.Swerve.swerveKinematics.toSwerveModuleStates(
+                fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                                    translation.getX(), 
+                                    translation.getY(), 
+                                    rotation, 
+                                    getYaw()
+                                )
+                                : new ChassisSpeeds(
+                                    translation.getX(), 
+                                    translation.getY(), 
+                                    rotation)
                                 );
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 

@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
 
@@ -23,6 +24,10 @@ public class TeleopSwerve extends CommandBase {
     private Translation2d translation;
     private boolean openLoop;
     
+    private boolean absoluteRotation = false;
+    private double desiredAngle = 0;
+    private PIDController headingController;
+
     private Swerve s_Swerve;
     private CommandPS4Controller controller;
 
@@ -52,6 +57,7 @@ public class TeleopSwerve extends CommandBase {
         this.controller = controller;
         this.openLoop = openLoop;
 
+        headingController = new PIDController(0.5, 0, 0);
 
         SmartDashboard.putData("Field", m_field);
 
@@ -66,7 +72,8 @@ public class TeleopSwerve extends CommandBase {
     public void execute() {
         double yAxis = -controller.getLeftY();
         double xAxis = -controller.getLeftX();
-        double rAxis = -controller.getRightX();
+        double rAxisX = -controller.getRightX();
+        double rAxisY = -controller.getRightY();
 
         balancePID.setP(SmartDashboard.getNumber("Balance kP", kP));
         balancePID.setI(SmartDashboard.getNumber("Balance kI", kI));
@@ -76,27 +83,34 @@ public class TeleopSwerve extends CommandBase {
         
         yAxis = (Math.abs(yAxis) < Constants.stickDeadband) ? 0 : yAxis;
         xAxis = (Math.abs(xAxis) < Constants.stickDeadband) ? 0 : xAxis;
-        rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;   
         
+    
+        controller.share().onTrue(new InstantCommand(() -> absoluteRotation = !absoluteRotation));
+
+        if(absoluteRotation){
+            if(Math.abs(rAxisX) + Math.abs(rAxisY) < 1.6){
+                desiredAngle = Math.atan(rAxisY/rAxisX);
+            }
+            
+            headingController.setSetpoint(desiredAngle);
+            rotation = MathUtil.clamp(headingController.calculate(s_Swerve.getYaw().getDegrees()), -1, 1);
+            rotation *= Constants.Swerve.maxAngularVelocity;
+        }else{
+            rotation = rAxisX * Constants.Swerve.maxAngularVelocity;
+            desiredAngle = 0;
+        }
+        SmartDashboard.putNumber("NEW Drive Angle", desiredAngle);
+
         boolean fieldRelative = true;
         if(controller.cross().getAsBoolean()){
             xAxis = 0.0;
-            rAxis = 0.0;
+            rotation = 0.0;
             yAxis = -MathUtil.clamp(balancePID.calculate(s_Swerve.getRoll(), 0.0), -0.12, 0.12);
             fieldRelative = false;
         }
-        
-        /*
-        rAxis *= 0.75;
-        */
-/*
-        yAxis = m_ForwardBackLimit.calculate(yAxis);
-        xAxis = m_SideSideLimit.calculate(xAxis);
-        rAxis = m_rotLimiter.calculate(rAxis);
-*/
+
 
         translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
-        rotation = rAxis * Constants.Swerve.maxAngularVelocity;
         s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
 
         m_field.setRobotPose(s_Swerve.getPose());
