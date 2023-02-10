@@ -49,6 +49,7 @@ public class RobotContainer {
   
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
+  public static final IntakeArm arm = new IntakeArm();
 
   //Auto Chooser
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
@@ -59,7 +60,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     s_Swerve.setDefaultCommand(new TeleopSwerve(s_Swerve, driveController, true));
-    
+    arm.setDefaultCommand(new TeleopArmControl(arm, specialsController));
     // Configure the button bindings
     configureButtonBindings();
     

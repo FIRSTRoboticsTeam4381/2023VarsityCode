@@ -14,11 +14,11 @@ public final class Constants {
     public static final class IntakeArm {
 
         public static final int armTilt1CAN = 55;
-        public static final int armTilt2CAN = 55;
-        public static final int armExtensionCAN = 55;
+        public static final int armTilt2CAN = 56;
+        public static final int armExtensionCAN = 57;
         
-        public static final int wristAngleCAN = 55;
-        public static final int intakeCAN = 55;
+        public static final int wristAngleCAN = 58;
+        public static final int intakeCAN = 59;
     }
 
     public static final class Swerve {

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 //import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,7 +26,7 @@ public class TeleopSwerve extends CommandBase {
     private boolean openLoop;
     
     private boolean absoluteRotation = false;
-    private double desiredAngle = 0;
+    private double desiredAngle;
     private PIDController headingController;
 
     private Swerve s_Swerve;
@@ -88,8 +89,8 @@ public class TeleopSwerve extends CommandBase {
         controller.share().onTrue(new InstantCommand(() -> absoluteRotation = !absoluteRotation));
 
         if(absoluteRotation){
-            if(Math.abs(rAxisX) + Math.abs(rAxisY) < 1.6){
-                desiredAngle = Math.atan(rAxisY/rAxisX);
+            if(Math.abs(rAxisX) + Math.abs(rAxisY) >=1){
+                desiredAngle = new Translation2d(-rAxisY, -rAxisX).getAngle().getDegrees() + 180;
             }
             
             headingController.setSetpoint(desiredAngle);
@@ -99,7 +100,7 @@ public class TeleopSwerve extends CommandBase {
             rotation = rAxisX * Constants.Swerve.maxAngularVelocity;
             desiredAngle = 0;
         }
-        SmartDashboard.putNumber("NEW Drive Angle", desiredAngle);
+        SmartDashboard.putNumber("Desired Drive Heading", desiredAngle);
 
         boolean fieldRelative = true;
         if(controller.cross().getAsBoolean()){
