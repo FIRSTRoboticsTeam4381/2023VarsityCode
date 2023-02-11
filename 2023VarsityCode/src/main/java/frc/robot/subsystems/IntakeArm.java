@@ -2,12 +2,15 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.VecBuilder;
@@ -39,6 +42,9 @@ public class IntakeArm extends SubsystemBase {
     private RelativeEncoder armTiltEncoder;
     private RelativeEncoder armExtensionEncoder;
 
+    private SparkMaxLimitSwitch upperElevatorLimit;
+    private SparkMaxLimitSwitch lowerElevataorLimit;
+
     private SparkMaxPIDController armTiltPID;
     private SparkMaxPIDController armExtendPID;
     private ArmFeedforward wristFF;
@@ -52,6 +58,8 @@ public class IntakeArm extends SubsystemBase {
     private double extension = 0; 
 
     private Position position = Position.TRANSIT;
+    private boolean brakeEnable = false;
+
 
     public IntakeArm() {
 
@@ -81,6 +89,18 @@ public class IntakeArm extends SubsystemBase {
         armExtendPID.setOutputRange(-0.5, 0.5);
         armExtension.setIdleMode(IdleMode.kBrake);
 
+        armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
+
+        upperElevatorLimit = armExtension.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
+        lowerElevataorLimit = armExtension.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
+
+        armTilt1.setSoftLimit(SoftLimitDirection.kForward, 0);
+        armTilt1.setSoftLimit(SoftLimitDirection.kReverse, 0);
+
+        wristTilt.configForwardSoftLimitThreshold(0);
+        wristTilt.configReverseSoftLimitThreshold(0);
+        wristTilt.configForwardSoftLimitEnable(true);
+        wristTilt.configReverseSoftLimitEnable(true);
 
         intake = new CANSparkMax(Constants.IntakeArm.intakeCAN, MotorType.kBrushless);
 
@@ -89,9 +109,17 @@ public class IntakeArm extends SubsystemBase {
         armExtension.set(0);
         wristTilt.set(0);
         intake.set(0);
+        enableBrake();
     }
 
-
+    private void enableBrake(){
+        //Set brake
+        brakeEnable = true;
+    }
+    private void disableBrake(){
+        //Set brake
+        brakeEnable = false;
+    }
 
     public void setPosition(Position pos){
         position = pos;
@@ -138,8 +166,25 @@ public class IntakeArm extends SubsystemBase {
 
     }
 
-    public void setWristAngle(double angle){}
+    /**TODO */
+    public void setWristAngle(double angle){
+        wristTilt.set(ControlMode.Position, angle);
+    }
+
+    /**TODO */
+    public double getWwristAngle(){
+        return wristTilt.getSelectedSensorPosition();
+    }
+
+    /**TODO */
     public void setArmAngle(double angle){}
+
+    /**TODO */
+    public double getArmAngle(){
+        return armTiltEncoder.getPosition();
+    }
+    
+    /**TODO */
     public void setElevatorExtend(double distance){}
 
     @Override

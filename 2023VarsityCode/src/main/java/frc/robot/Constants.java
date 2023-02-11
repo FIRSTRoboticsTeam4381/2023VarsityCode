@@ -19,6 +19,10 @@ public final class Constants {
         
         public static final int wristAngleCAN = 58;
         public static final int intakeCAN = 59;
+
+        public static final double ArmTiltRatio = 75;
+        public static final double ElevatorRatio = 12;
+        public static final double WristRation = 12;
     }
 
     public static final class Swerve {
