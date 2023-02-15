@@ -22,7 +22,7 @@ public class Balance extends CommandBase{
 
     @Override
     public void execute(){
-        double yAxis = -MathUtil.clamp(balancePID.calculate(s_Swerve.getRoll(), 0.0), -0.12, 0.12);
+        double yAxis = -MathUtil.clamp(balancePID.calculate(s_Swerve.getPitch(), 0.0), -0.12, 0.12);
 
         translation = new Translation2d(yAxis, 0.0).times(Constants.Swerve.maxSpeed);
         s_Swerve.drive(translation, 0, false, true);
