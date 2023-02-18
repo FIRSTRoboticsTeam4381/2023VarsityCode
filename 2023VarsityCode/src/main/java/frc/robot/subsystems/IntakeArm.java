@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -30,6 +31,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeArm extends SubsystemBase {
@@ -128,44 +134,63 @@ public class IntakeArm extends SubsystemBase {
     public void goToPosition(Position pos){
         switch(pos){
             case TRANSIT:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
             case HIGHPLACE:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
             case MIDPLACE:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
             case UPCONE:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
             case TIPCONE:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
             case HUMANUPRIGHT:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
             case HUMANSLIDE:
-                setWristAngle(0);
-                setArmAngle(0);
-                setElevatorExtend(0);
+                CommandScheduler.getInstance().schedule(runToPosition(0, 0, 0));
                 break;
         }
 
     }
 
+    public Command runToPosition(double wrist, double arm, double elevator){
+        return new SequentialCommandGroup(
+            //Elevator Down
+            /*
+            new FunctionalCommand(
+                null, //init
+                null, //execute
+                null, //end
+                null, //finish condition
+                null //subsytem requirement
+            ),
+            */
+            //Arm to angle
+            new FunctionalCommand(
+                () -> disableBrake(), //init
+                () -> armTiltPID.setReference(arm, ControlType.kPosition, 0), //execute
+                interrupted -> enableBrake(), //end
+                () -> Math.abs(armTiltEncoder.getPosition() - arm) < 0.1, //finish condition
+                this //subsytem requirement
+            )
+            //Elevator to Pos
+            /*
+            new FunctionalCommand(
+                null, //init
+                null, //execute
+                null, //end
+                null, //finish condition
+                null //subsytem requirement
+            )
+            */
+        );
+    }
+    
     /**TODO */
     public void setWristAngle(double angle){
         wristTilt.set(ControlMode.Position, angle);

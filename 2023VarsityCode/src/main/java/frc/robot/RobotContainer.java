@@ -49,7 +49,7 @@ public class RobotContainer {
   
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
-  public static final IntakeArm arm = new IntakeArm();
+  //public static final IntakeArm arm = new IntakeArm();
 
   //Auto Chooser
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
@@ -60,7 +60,6 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     s_Swerve.setDefaultCommand(new TeleopSwerve(s_Swerve, driveController, true));
-    arm.setDefaultCommand(new TeleopArmControl(arm, specialsController));
     // Configure the button bindings
     configureButtonBindings();
     
@@ -111,6 +110,17 @@ public class RobotContainer {
        * Hence we can have a driver handoff button that will schedule a swervecontroller command to run a trajectory to drive in to the april
        * tag or specified location based off of the april tag.  We might be doing vision without green lights!
        */
+
+    /*
+    //ARM MOVEMENT COMMANDS
+    specialsController.triangle()
+        .onTrue(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.HUMANSLIDE)))
+        .onFalse(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.TRANSIT)));
+
+    specialsController.cross()
+        .onTrue(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.HIGHPLACE)))
+        .onFalse(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.TRANSIT)));
+        */
   }
 
   /**

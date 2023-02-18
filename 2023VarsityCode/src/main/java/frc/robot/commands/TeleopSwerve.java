@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import frc.lib.util.CTREModuleState;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -58,7 +59,7 @@ public class TeleopSwerve extends CommandBase {
         this.controller = controller;
         this.openLoop = openLoop;
 
-        headingController = new PIDController(0.5, 0, 0);
+        headingController = new PIDController(0.008, 0, 0);
 
         SmartDashboard.putData("Field", m_field);
 
@@ -87,14 +88,21 @@ public class TeleopSwerve extends CommandBase {
         
     
         controller.share().onTrue(new InstantCommand(() -> absoluteRotation = !absoluteRotation));
-
+        SmartDashboard.putBoolean("Absolute Rotation", absoluteRotation);
         if(absoluteRotation){
-            if(Math.abs(rAxisX) + Math.abs(rAxisY) >=1){
+            if(Math.abs(rAxisX) + Math.abs(rAxisY) >=0.8){
                 desiredAngle = new Translation2d(-rAxisY, -rAxisX).getAngle().getDegrees() + 180;
             }
             
+            double currentAngle = s_Swerve.getYaw().getDegrees()%360;
+            //Account for flip
+            if(desiredAngle - currentAngle > 180){
+                desiredAngle = -((360-desiredAngle)+currentAngle);
+                currentAngle = 0;
+            }
+
             headingController.setSetpoint(desiredAngle);
-            rotation = MathUtil.clamp(headingController.calculate(s_Swerve.getYaw().getDegrees()), -1, 1);
+            rotation = MathUtil.clamp(headingController.calculate(currentAngle), -0.75, 0.75);
             rotation *= Constants.Swerve.maxAngularVelocity;
         }else{
             rotation = rAxisX * Constants.Swerve.maxAngularVelocity;

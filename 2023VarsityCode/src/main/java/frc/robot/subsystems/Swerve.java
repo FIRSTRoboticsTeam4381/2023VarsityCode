@@ -30,7 +30,7 @@ public class Swerve extends SubsystemBase {
     private NetworkTable limeLight;
 
     public Swerve() {
-        gyro = new Pigeon2(Constants.Swerve.pigeonID, "DriveMotorBus");
+        gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
         gyro.setYaw(0);
         gyro.configMountPoseRoll(-1.35);
         zeroGyro(0);

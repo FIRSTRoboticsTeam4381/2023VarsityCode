@@ -4,10 +4,20 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.cameraserver.CameraServer;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -22,6 +32,22 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private CANSparkMax armTilt1;
+  private CANSparkMax armTilt2;
+  private CANSparkMax armExtend;
+  private WPI_TalonSRX wristTilt;
+  private CANSparkMax intake;
+
+  private Servo brake;
+
+  private RelativeEncoder armTilt1Encoder;
+  private RelativeEncoder armTilt2Encoder;
+  private AbsoluteEncoder armTiltAbsoluteEncoder;
+  private RelativeEncoder armExtensionEncoder;
+
+  private SparkMaxPIDController armTiltPID;
+  private boolean brakeEnable = true;
+  private final Joystick testingController = new Joystick(3);
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -35,6 +61,39 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
+    armTilt2 = new CANSparkMax(Constants.IntakeArm.armTilt2CAN, MotorType.kBrushless);
+    armExtend = new CANSparkMax(Constants.IntakeArm.armExtensionCAN, MotorType.kBrushless);
+    intake = new CANSparkMax(Constants.IntakeArm.intakeCAN, MotorType.kBrushless);
+    wristTilt = new WPI_TalonSRX(Constants.IntakeArm.wristAngleCAN);
+
+    armTilt1Encoder = armTilt1.getEncoder();
+    armTilt2Encoder = armTilt2.getEncoder();
+    armTiltAbsoluteEncoder = armTilt1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+    armExtensionEncoder = armExtend.getEncoder();
+
+    brake = new Servo(1);
+
+    /*
+    armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
+    armTiltEncoder = armTilt1.getEncoder();
+    armTiltPID = armTilt1.getPIDController();
+    armTiltPID.setP(0.1);
+    armTiltPID.setI(0);
+    armTiltPID.setD(0.003);
+    armTiltPID.setFF(0.0002);
+    armTiltPID.setOutputRange(-0.3, 0.3);
+    armTilt1.setIdleMode(IdleMode.kBrake);
+
+    armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
+    //armTilt1.setSoftLimit(SoftLimitDirection.kForward, 0);
+    //armTilt1.setSoftLimit(SoftLimitDirection.kReverse, 0);
+    */
+
+    armTilt1.set(0);
+
+
   }
 
   /**
@@ -92,7 +151,49 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    
+    SmartDashboard.putNumber("Arm angle 1", armTilt1Encoder.getPosition());
+    SmartDashboard.putNumber("Arm angle 2", armTilt2Encoder.getPosition());
+    SmartDashboard.putNumber("Arm angle Absolute", armTiltAbsoluteEncoder.getPosition());
+    SmartDashboard.putNumber("Wrist angle", wristTilt.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Arm Extension", armExtensionEncoder.getPosition());
+
+    if(testingController.getRawButton(8)){
+      armTilt1.set(0.1);
+    }else if(testingController.getRawButton(7)){
+      armTilt1.set(-0.1);
+    }else{
+      armTilt1.set(0);
+    }
+
+    if(testingController.getRawButton(9)){
+      armExtend.set(0.1);
+    }else if(testingController.getRawButton(10)){
+      armExtend.set(-0.1);
+    }else{
+      armExtend.set(0);
+    }
+
+    if(testingController.getRawButton(11)){
+      wristTilt.set(0.1);
+    }else if(testingController.getRawButton(12)){
+      wristTilt.set(-0.1);
+    }else{
+      wristTilt.set(0);
+    }
+
+    if(testingController.getRawButton(2)){
+      intake.set(0.5);
+    }else if(testingController.getRawButton(1)){
+      intake.set(-0.5);
+    }else{
+      intake.set(0);
+    }
+
+    brake.set((testingController.getThrottle()+1)/2);
+
+  }
   
 
   @Override
