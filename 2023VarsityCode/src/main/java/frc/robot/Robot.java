@@ -73,6 +73,8 @@ public class Robot extends TimedRobot {
     armTiltAbsoluteEncoder = armTilt1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
     armExtensionEncoder = armExtend.getEncoder();
 
+    armTilt2.follow(armTilt1,false);
+
     brake = new Servo(1);
 
     /*
@@ -160,33 +162,33 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Arm Extension", armExtensionEncoder.getPosition());
 
     if(testingController.getRawButton(8)){
-      armTilt1.set(0.1);
+      armTilt1.set(0.5);
     }else if(testingController.getRawButton(7)){
-      armTilt1.set(-0.1);
+      armTilt1.set(-0.5);
     }else{
       armTilt1.set(0);
     }
 
     if(testingController.getRawButton(9)){
-      armExtend.set(0.1);
+      armExtend.set(0.25);//Elevator down
     }else if(testingController.getRawButton(10)){
-      armExtend.set(-0.1);
+      armExtend.set(-0.75);//Elevator up
     }else{
       armExtend.set(0);
     }
 
     if(testingController.getRawButton(11)){
-      wristTilt.set(0.1);
+      wristTilt.set(0.5); //Wrist down
     }else if(testingController.getRawButton(12)){
-      wristTilt.set(-0.1);
+      wristTilt.set(-0.5); //Wrist Up
     }else{
       wristTilt.set(0);
     }
 
-    if(testingController.getRawButton(2)){
-      intake.set(0.5);
-    }else if(testingController.getRawButton(1)){
-      intake.set(-0.5);
+    if(testingController.getRawButton(1)){
+      intake.set(1); //Fire out
+    }else if(testingController.getRawButton(2)){
+      intake.set(-1); //Pull in
     }else{
       intake.set(0);
     }
