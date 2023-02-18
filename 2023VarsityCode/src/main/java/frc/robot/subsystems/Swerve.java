@@ -164,11 +164,19 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
-     * TODO fix
+     * 
      * @return The roll of the robot with forward being negative
      */
     public double getRoll(){
         return gyro.getRoll();
+    }
+
+    /**
+     * TODO {negative or positive}. Used for auto-balance
+     * @return The roll of the robot with forward being negative
+     */
+    public double getPitch(){
+        return gyro.getPitch();
     }
     
     
