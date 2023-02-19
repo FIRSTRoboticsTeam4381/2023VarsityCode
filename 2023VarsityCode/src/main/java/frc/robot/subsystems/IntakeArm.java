@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -156,6 +158,49 @@ public class IntakeArm extends SubsystemBase {
                 break;
         }
 
+    }
+
+    public Command runToPosition(){
+        double[] armState = RobotContainer.stationSelector.getArmState();
+        return new SequentialCommandGroup(
+            //Elevator Down
+            new ParallelCommandGroup(
+                new FunctionalCommand(
+                    () -> enableBrake(), //init
+                    () -> armExtendPID.setReference(0, ControlType.kPosition, 0), //execute
+                    interrupted -> armExtension.set(0), //end
+                    () -> Math.abs(armExtensionEncoder.getPosition()) < 0.1, //finish condition
+                    this //subsytem requirement
+                )
+                /*,
+                run wrist to correct angle while elevator extends
+                new FunctionalCommand(
+                    () -> w
+                    () -> armExtendPID.setReference(0, ControlType.kPosition, 0), //execute
+                    interrupted -> armExtension.set(0), //end
+                    () -> Math.abs(armExtensionEncoder.getPosition()) < 0.1, //finish condition
+                    this //subsytem requirement
+                )*/
+            ),
+            /*
+            //Arm to angle
+            new FunctionalCommand(
+                () -> disableBrake(), //init
+                () -> armTiltPID.setReference(armState[0], ControlType.kPosition, 0), //execute
+                interrupted -> enableBrake(), //end
+                () -> Math.abs(armTiltEncoder.getPosition() - armState[0]) < 0.1, //finish condition
+                this //subsytem requirement
+            )
+            */
+            //Elevator to Pos
+            new FunctionalCommand(
+                () -> enableBrake(), //init
+                () -> armExtendPID.setReference(armState[1], ControlType.kPosition, 0), //execute
+                interrupted -> armExtension.set(0), //end
+                () -> Math.abs(armExtensionEncoder.getPosition() - armState[1]) < 0.1, //finish condition
+                this //subsytem requirement
+            )
+        );
     }
 
     public Command runToPosition(double wrist, double arm, double elevator){

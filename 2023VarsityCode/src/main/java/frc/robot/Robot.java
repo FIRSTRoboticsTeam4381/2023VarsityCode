@@ -10,13 +10,22 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXPIDSetConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.cameraserver.CameraServer;
 /**
@@ -46,6 +55,7 @@ public class Robot extends TimedRobot {
   private RelativeEncoder armExtensionEncoder;
 
   private SparkMaxPIDController armTiltPID;
+  private SparkMaxPIDController armExtendPID;
   private boolean brakeEnable = true;
   private final Joystick testingController = new Joystick(3);
   /**
@@ -66,36 +76,57 @@ public class Robot extends TimedRobot {
     armTilt2 = new CANSparkMax(Constants.IntakeArm.armTilt2CAN, MotorType.kBrushless);
     armExtend = new CANSparkMax(Constants.IntakeArm.armExtensionCAN, MotorType.kBrushless);
     intake = new CANSparkMax(Constants.IntakeArm.intakeCAN, MotorType.kBrushless);
+    intake.setIdleMode(IdleMode.kBrake);
+    intake.setSmartCurrentLimit(40);
+
     wristTilt = new WPI_TalonSRX(Constants.IntakeArm.wristAngleCAN);
 
     armTilt1Encoder = armTilt1.getEncoder();
     armTilt2Encoder = armTilt2.getEncoder();
+
+    armTilt1Encoder.setPosition(0);
+    armTilt2Encoder.setPosition(0);
+
     armTiltAbsoluteEncoder = armTilt1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
     armExtensionEncoder = armExtend.getEncoder();
 
-    armTilt2.follow(armTilt1,false);
+    armTilt2.follow(armTilt1,true);
 
     brake = new Servo(1);
 
-    /*
-    armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
-    armTiltEncoder = armTilt1.getEncoder();
     armTiltPID = armTilt1.getPIDController();
     armTiltPID.setP(0.1);
     armTiltPID.setI(0);
     armTiltPID.setD(0.003);
     armTiltPID.setFF(0.0002);
-    armTiltPID.setOutputRange(-0.3, 0.3);
+    armTiltPID.setOutputRange(-0.5, 0.5);
     armTilt1.setIdleMode(IdleMode.kBrake);
 
     armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
+
+    armExtendPID = armExtend.getPIDController();
+    armExtendPID.setP(0.5);
+    armExtendPID.setI(0);
+    armExtendPID.setD(0.0004);
+    armExtendPID.setFF(0.00017);
+    armExtendPID.setOutputRange(-0.75, 0.2);
+    armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
+    armExtend.setIdleMode(IdleMode.kBrake);
+
+    wristTilt.configFactoryDefault();
+    wristTilt.setNeutralMode(NeutralMode.Brake);
+    wristTilt.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+    wristTilt.setSelectedSensorPosition(0);
+    wristTilt.configPeakOutputForward(0.5);
+    wristTilt.configPeakOutputReverse(-0.5);
+    wristTilt.config_kP(0, 0.1);
+    wristTilt.configAllowableClosedloopError(0, 0, 0);
+    
     //armTilt1.setSoftLimit(SoftLimitDirection.kForward, 0);
     //armTilt1.setSoftLimit(SoftLimitDirection.kReverse, 0);
-    */
+    
 
     armTilt1.set(0);
-
-
   }
 
   /**
@@ -161,28 +192,24 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Wrist angle", wristTilt.getSelectedSensorPosition());
     SmartDashboard.putNumber("Arm Extension", armExtensionEncoder.getPosition());
 
-    if(testingController.getRawButton(8)){
-      armTilt1.set(0.5);
-    }else if(testingController.getRawButton(7)){
-      armTilt1.set(-0.5);
+    if(testingController.getRawButton(3)){
+      double pos = 22.618;
+      armTiltPID.setReference(pos, ControlType.kPosition);
+      if(Math.abs(armTilt1Encoder.getPosition() - pos) < 2){
+        armExtendPID.setReference(-17.238, ControlType.kPosition);
+        wristTilt.set(TalonSRXControlMode.Position, 6519); //Wrist down
+      }else{
+        armExtendPID.setReference(0, ControlType.kPosition);
+        wristTilt.set(TalonSRXControlMode.Position, 0);
+      }
+    }else if(testingController.getRawButton(2)){
+      wristTilt.set(TalonSRXControlMode.Position, 581);
+      armTiltPID.setReference(53.25, ControlType.kPosition);
+      armExtendPID.setReference(0, ControlType.kPosition);
     }else{
-      armTilt1.set(0);
-    }
-
-    if(testingController.getRawButton(9)){
-      armExtend.set(0.25);//Elevator down
-    }else if(testingController.getRawButton(10)){
-      armExtend.set(-0.75);//Elevator up
-    }else{
-      armExtend.set(0);
-    }
-
-    if(testingController.getRawButton(11)){
-      wristTilt.set(0.5); //Wrist down
-    }else if(testingController.getRawButton(12)){
-      wristTilt.set(-0.5); //Wrist Up
-    }else{
-      wristTilt.set(0);
+      armTiltPID.setReference(0, ControlType.kPosition);
+      armExtendPID.setReference(0, ControlType.kPosition);
+      wristTilt.set(TalonSRXControlMode.Position, 0);
     }
 
     if(testingController.getRawButton(1)){

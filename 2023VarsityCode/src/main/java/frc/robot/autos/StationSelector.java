@@ -9,7 +9,11 @@ public final class StationSelector {
     private final double[] redSidePlacePoints = {0.4,1.0,1.6,2.2,2.8,3.4,4.0,4.6,5.2};
     private final double stagePos = 14.31;
     private final double placePos = 14.73;
-    
+
+    private final double[] elevatorPositions = {};
+    private final double[] wristAngles = {};
+    private final double[] armAngles = {};
+
     private Alliance alliance;
 
     private String station = "";
@@ -86,15 +90,19 @@ public final class StationSelector {
         switch(prevStroke.charAt(2)){
             case 'T':
                 station += "Top Row - ";
+                row = 2;
                 break;
             case 'L':
                 station += "Middle Row - ";
+                row = 1;
                 break;
             case 'R':
                 station += "Middle Row - ";
+                row = 1;
                 break;
             case 'B':
                 station += "Bottom Row - ";
+                row = 0;
                 break;
         }
 
@@ -124,6 +132,13 @@ public final class StationSelector {
 
     public double[] getStagePoint(){
         return new double[] {stagePos, redSidePlacePoints[index]};
+    }
+
+    /**
+     * @return A double array of [arm angle, elevator position, wrist angle]
+     */
+    public double[] getArmState(){
+        return new double[] {armAngles[index], elevatorPositions[index], wristAngles[index]};
     }
 
     public void clearKeystroke(){

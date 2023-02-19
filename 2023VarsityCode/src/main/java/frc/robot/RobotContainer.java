@@ -101,8 +101,10 @@ public class RobotContainer {
     
     rBumper.and(lBumper).onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        Autos.followTrajectory(Autos.runToPlace(s_Swerve.getPose())
-      ))));
+        Autos.followTrajectory(
+          Autos.runToPlace(s_Swerve.getPose()))
+          //.andThen(arm.runToPosition())
+      )));
 
       /**
        * Note to self:
