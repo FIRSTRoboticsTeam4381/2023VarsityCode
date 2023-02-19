@@ -47,6 +47,9 @@ public class Robot extends TimedRobot {
   private WPI_TalonSRX wristTilt;
   private CANSparkMax intake;
 
+  private RelativeEncoder intakeEncoder;
+  private SparkMaxPIDController intakeHoldPID;
+
   private Servo brake;
 
   private RelativeEncoder armTilt1Encoder;
@@ -122,6 +125,10 @@ public class Robot extends TimedRobot {
     wristTilt.config_kP(0, 0.1);
     wristTilt.configAllowableClosedloopError(0, 0, 0);
     
+    intakeEncoder = intake.getEncoder();
+    intakeHoldPID = intake.getPIDController();
+    intakeHoldPID.setP(0.5);
+
     //armTilt1.setSoftLimit(SoftLimitDirection.kForward, 0);
     //armTilt1.setSoftLimit(SoftLimitDirection.kReverse, 0);
     
@@ -217,7 +224,7 @@ public class Robot extends TimedRobot {
     }else if(testingController.getRawButton(2)){
       intake.set(-1); //Pull in
     }else{
-      intake.set(0);
+      intakeHoldPID.setReference(intakeEncoder.getPosition(), ControlType.kPosition);
     }
 
     brake.set((testingController.getThrottle()+1)/2);

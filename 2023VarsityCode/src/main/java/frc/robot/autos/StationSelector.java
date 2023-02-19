@@ -2,6 +2,8 @@ package frc.robot.autos;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import frc.robot.subsystems.IntakeArm;
+import frc.robot.subsystems.IntakeArm.Position;
 
 public final class StationSelector {
 
@@ -137,8 +139,17 @@ public final class StationSelector {
     /**
      * @return A double array of [arm angle, elevator position, wrist angle]
      */
-    public double[] getArmState(){
-        return new double[] {armAngles[index], elevatorPositions[index], wristAngles[index]};
+    public Position getArmState(){
+        switch(row){
+            case 2:
+                return Position.HIGHPLACE;
+            case 1:
+                return Position.MIDPLACE;
+            case 0:
+                return Position.UPCONE;
+            default:
+                return Position.TRANSIT;
+        }
     }
 
     public void clearKeystroke(){

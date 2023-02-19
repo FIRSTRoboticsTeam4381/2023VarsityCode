@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.IntakeArm.Position;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -34,32 +35,26 @@ public class RobotContainer {
 
   /* Driver Buttons */
   private final Trigger zeroSwerve = driveController.options();
- //private final Trigger lime = controller.circle();
 
+  /* Station Selector Buttons */
   public static StationSelector stationSelector;
-  private final Trigger leftDpad = specialsController.povLeft();
-  private final Trigger rightDpad = specialsController.povRight();
-  private final Trigger topDpad = specialsController.povUp();
-  private final Trigger bottomDpad = specialsController.povDown();
-  private final Trigger circle = driveController.circle();
-  private final Trigger square = driveController.square();
-  private final Trigger triangle = driveController.triangle();
-  private final Trigger rBumper = driveController.R1();
-  private final Trigger lBumper = driveController.L1();
+  private final Trigger specialsLeftDpad = specialsController.povLeft();
+  private final Trigger specialsRightDpad = specialsController.povRight();
+  private final Trigger specialsTopDpad = specialsController.povUp();
+  private final Trigger specialsBottomDpad = specialsController.povDown();
   
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
-  //public static final IntakeArm arm = new IntakeArm();
+  public static final IntakeArm arm = new IntakeArm();
 
-  //Auto Chooser
+  /* Auto Chooser */
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
-
-  //Change this and see what happens. Like auto for teleop.
-  //private boolean openLoop = true;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
     s_Swerve.setDefaultCommand(new TeleopSwerve(s_Swerve, driveController, true));
+
     // Configure the button bindings
     configureButtonBindings();
     
@@ -69,14 +64,11 @@ public class RobotContainer {
     m_AutoChooser.addOption("PathPlanner Test", Autos.exampleAuto());
     m_AutoChooser.addOption("Micheals Eyes Worst Nightmare", Autos.blindMike());
     m_AutoChooser.addOption("Balance", Autos.balanceCommad());
-
     SmartDashboard.putData(m_AutoChooser);
 
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
 
     stationSelector = new StationSelector(DriverStation.getAlliance());
-
-    
   }
 
   /**
@@ -87,42 +79,44 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     
-    //Button to reset swerve odometry and angle
+    /* Swerve Reset Button */
     zeroSwerve
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
       .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));
 
     
-
-    leftDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("L")));
-    rightDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("R")));
-    topDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
-    bottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
+    /* Station Selector Commands */
+    specialsLeftDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("L")));
+    specialsRightDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("R")));
+    specialsTopDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
+    specialsBottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
     
-    rBumper.and(lBumper).onTrue(
+    /* Auto Place Command */
+    driveController.R1().and(driveController.L1()).onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         Autos.followTrajectory(
           Autos.runToPlace(s_Swerve.getPose()))
           //.andThen(arm.runToPosition())
       )));
 
-      /**
-       * Note to self:
-       * Teleop Swerve is a default command, meaning anything scheduled that uses drive will take over
-       * Hence we can have a driver handoff button that will schedule a swervecontroller command to run a trajectory to drive in to the april
-       * tag or specified location based off of the april tag.  We might be doing vision without green lights!
-       */
-
-    /*
-    //ARM MOVEMENT COMMANDS
+    
+    /* Arm Intake Button Commands */
     specialsController.triangle()
-        .onTrue(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.HUMANSLIDE)))
-        .onFalse(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.TRANSIT)));
+      .onTrue(arm.runToPosition(Position.UPCONE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    specialsController.square()
+      .onTrue(arm.runToPosition(Position.TIPCONE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
 
     specialsController.cross()
-        .onTrue(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.HIGHPLACE)))
-        .onFalse(new InstantCommand(() -> arm.goToPosition(IntakeArm.Position.TRANSIT)));
-        */
+      .onTrue(arm.runToPosition(Position.HUMANSLIDE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    specialsController.circle()
+      .onTrue(arm.runToPosition(Position.HUMANUPRIGHT))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+        
   }
 
   /**
