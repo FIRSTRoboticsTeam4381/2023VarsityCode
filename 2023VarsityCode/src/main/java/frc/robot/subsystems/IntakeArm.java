@@ -222,7 +222,7 @@ public class IntakeArm extends SubsystemBase{
             wristTilt.set(TalonSRXControlMode.Position, 0);
         }
 
-        if((Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 2)){
+        if((Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1)){
             switch(intakeAction){
                 case HOLD:
                     intakeHoldPID.setReference(intakeHoldPos, ControlType.kPosition);
