@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
+
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -58,64 +60,64 @@ public class IntakeArm extends SubsystemBase{
     private IntakeAction intakeAction = IntakeAction.HOLD;
     private double intakeHoldPos = 0;
     private boolean brakeEnable = false;
-
+    public boolean LOCKOUT = false;
 
     public IntakeArm() {
 
         /* Arm Tilt Motor Configs */
-    armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
-    armTilt2 = new CANSparkMax(Constants.IntakeArm.armTilt2CAN, MotorType.kBrushless);
-    armExtend = new CANSparkMax(Constants.IntakeArm.armExtensionCAN, MotorType.kBrushless);
-    intake = new CANSparkMax(Constants.IntakeArm.intakeCAN, MotorType.kBrushless);
-    intake.setIdleMode(IdleMode.kBrake);
-    intake.setSmartCurrentLimit(40);
+        armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
+        armTilt2 = new CANSparkMax(Constants.IntakeArm.armTilt2CAN, MotorType.kBrushless);
+        armExtend = new CANSparkMax(Constants.IntakeArm.armExtensionCAN, MotorType.kBrushless);
+        intake = new CANSparkMax(Constants.IntakeArm.intakeCAN, MotorType.kBrushless);
+        intake.setIdleMode(IdleMode.kBrake);
+        intake.setSmartCurrentLimit(40);
 
-    wristTilt = new WPI_TalonSRX(Constants.IntakeArm.wristAngleCAN);
+        wristTilt = new WPI_TalonSRX(Constants.IntakeArm.wristAngleCAN);
 
-    armTilt1Encoder = armTilt1.getEncoder();
-    armTilt2Encoder = armTilt2.getEncoder();
+        armTilt1Encoder = armTilt1.getEncoder();
+        armTilt2Encoder = armTilt2.getEncoder();
 
-    armTilt1Encoder.setPosition(0);
-    armTilt2Encoder.setPosition(0);
+        armTilt1Encoder.setPosition(0);
+        armTilt2Encoder.setPosition(0);
 
-    armExtensionEncoder = armExtend.getEncoder();
+        armExtensionEncoder = armExtend.getEncoder();
 
-    //armTilt2.follow(armTilt1,true);
-    armTilt2.setIdleMode(IdleMode.kBrake);
-    armTilt2.set(0);
+        //armTilt2.follow(armTilt1,true);
+        armTilt2.setIdleMode(IdleMode.kBrake);
+        armTilt2.set(0);
 
-    armTiltPID = armTilt1.getPIDController();
-    armTiltPID.setP(0.2);
-    armTiltPID.setI(0);
-    armTiltPID.setD(0.003);
-    armTiltPID.setFF(0.0002);
-    armTiltPID.setOutputRange(-0.5, 0.5);
-    armTilt1.setIdleMode(IdleMode.kBrake);
+        armTiltPID = armTilt1.getPIDController();
+        armTiltPID.setP(0.2);
+        armTiltPID.setI(0);
+        armTiltPID.setD(0.003);
+        armTiltPID.setFF(0.0002);
+        armTiltPID.setOutputRange(-0.5, 0.5);
+        armTilt1.setIdleMode(IdleMode.kBrake);
 
-    armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
+        armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
 
-    armExtendPID = armExtend.getPIDController();
-    armExtendPID.setP(0.5);
-    armExtendPID.setI(0);
-    armExtendPID.setD(0.0004);
-    armExtendPID.setFF(0.00017);
-    armExtendPID.setOutputRange(-0.75, 0.4);
-    armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
-    armExtend.setIdleMode(IdleMode.kBrake);
+        armExtendPID = armExtend.getPIDController();
+        armExtendPID.setP(0.5);
+        armExtendPID.setI(0);
+        armExtendPID.setD(0.0004);
+        armExtendPID.setFF(0.00017);
+        armExtendPID.setOutputRange(-0.75, 0.4);
+        armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
+        armExtend.setIdleMode(IdleMode.kBrake);
 
-    wristTilt.configFactoryDefault();
-    wristTilt.setNeutralMode(NeutralMode.Brake);
-    wristTilt.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-    wristTilt.setSelectedSensorPosition(0);
-    wristTilt.configPeakOutputForward(0.5);
-    wristTilt.configPeakOutputReverse(-0.5);
-    wristTilt.config_kP(0, 0.12);
-    wristTilt.configAllowableClosedloopError(0, 0, 0);
-    
-    intakeEncoder = intake.getEncoder();
-    intakeHoldPID = intake.getPIDController();
-    intakeHoldPID.setP(0.5);
-
+        wristTilt.configFactoryDefault();
+        wristTilt.setNeutralMode(NeutralMode.Brake);
+        wristTilt.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        wristTilt.setSelectedSensorPosition(0);
+        wristTilt.configPeakOutputForward(0.5);
+        wristTilt.configPeakOutputReverse(-0.5);
+        wristTilt.config_kP(0, 0.12);
+        wristTilt.configAllowableClosedloopError(0, 0, 0);
+        
+        intakeEncoder = intake.getEncoder();
+        intakeHoldPID = intake.getPIDController();
+        intakeHoldPID.setP(0.5);
+        intakeHoldPID.setReference(0, ControlType.kPosition);
 
         //Enable brake
         enableBrake();
@@ -163,64 +165,15 @@ public class IntakeArm extends SubsystemBase{
             case HUMANSLIDE:
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {16.48,0,-2384};
+            case HYBRID:
+                intakeAction = IntakeAction.PLACE;
+                return new double[] {55.88,0,-826};
             default:
                 intakeAction = IntakeAction.HOLD;
                 return new double[] {0,0,0};
         }
 
     }
-
-    /*
-    public Command runToPosition(Position pos){
-        double[] armState = getArmState(pos);
-        return new SequentialCommandGroup(
-            //Shutoff intake
-            Commands.runOnce(() -> intakeHoldPID.setReference(intakeEncoder.getPosition(), ControlType.kPosition)),
-
-            //Disable Brake
-            Commands.runOnce(() -> disableBrake()),
-
-            //Elevator & wrist to 0
-            Commands.run(() -> armExtendPID.setReference(0, ControlType.kPosition))
-                .until(() -> Math.abs(armExtensionEncoder.getPosition()) < 2),
-            //.alongWith(
-                Commands.run(() -> wristTilt.set(TalonSRXControlMode.Position, 0))
-                    .until(() -> Math.abs(wristTilt.getSelectedSensorPosition()) < 200),
-            //),
-
-            //Arm to angle
-            Commands.run(() -> armTiltPID.setReference(armState[0], ControlType.kPosition))
-                .until(() -> Math.abs(armTiltEncoder.getPosition() - armState[0]) < 2),
-            
-            //Elevator & wrist to position
-            Commands.run(() -> armExtendPID.setReference(armState[1], ControlType.kPosition))
-                .until(() -> Math.abs(armExtensionEncoder.getPosition() - armState[1]) < 2),
-            //.alongWith(
-                Commands.run(() -> wristTilt.set(TalonSRXControlMode.Position, armState[2]))
-                    .until(() -> Math.abs(wristTilt.getSelectedSensorPosition() - armState[2]) < 200),
-            //),
-
-            //Activate Intake
-            runIntake()
-
-        );
-    }
-*/
-/*
-    private IntakeAction select(){
-        return intakeAction;
-    }
-
-    private Command runIntake(){
-        return new SelectCommand(
-            Map.ofEntries(
-                Map.entry(IntakeAction.HOLD, new InstantCommand(() -> intakeHoldPID.setReference(intakeEncoder.getPosition(), ControlType.kPosition))),
-                Map.entry(IntakeAction.INTAKE, new InstantCommand(() -> intake.set(-1))),
-                Map.entry(IntakeAction.PLACE, new InstantCommand(() -> intake.set(1)))
-            ),
-            this::select);
-    }
-*/
     
     public double getArmAngle(){
         return armTilt1Encoder.getPosition();
@@ -236,7 +189,8 @@ public class IntakeArm extends SubsystemBase{
         AUTOCUBE,
         HUMANCUBE,
         HUMANCONE,
-        HUMANSLIDE
+        HUMANSLIDE,
+        HYBRID
     }
 
     public enum IntakeAction{
@@ -272,19 +226,24 @@ public class IntakeArm extends SubsystemBase{
             switch(intakeAction){
                 case HOLD:
                     intakeHoldPID.setReference(intakeHoldPos, ControlType.kPosition);
-                    //intake.set(0);
                     break;
                 case INTAKE:
                     intakeHoldPos = intakeEncoder.getPosition()-0.01;
                     intake.set(-1);
                     break;
                 case PLACE:
-                    intakeHoldPos = intakeEncoder.getPosition()+0.01;
-                    intake.set(1);
+                    if(RobotContainer.stationSelector.getType().equals("Cone")){
+                        intakeHoldPos = intakeEncoder.getPosition()+0.01;
+                        intake.set(1);
+                    }else{
+                        intakeHoldPos = intakeEncoder.getPosition();
+                        intake.set(0.5);
+                    }                    
                     break;
-
-            }
+                }
         }
+
+        LOCKOUT = armExtensionEncoder.getPosition() < -3;
 
     }
 }

@@ -123,12 +123,9 @@ public class RobotContainer {
     .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
     .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
-    specialsController.L1()
-    .onTrue(new InstantCommand(() -> arm.setState(Position.HIGHPLACE)))
-    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
+    //Place on predetermined spot kind of
     specialsController.R1()
-    .onTrue(new InstantCommand(() -> arm.setState(Position.MIDPLACE)))
+    .onTrue(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
     .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
 /*

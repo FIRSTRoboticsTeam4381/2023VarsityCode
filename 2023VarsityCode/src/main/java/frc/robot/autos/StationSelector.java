@@ -137,7 +137,7 @@ public final class StationSelector {
     }
 
     /**
-     * @return A double array of [arm angle, elevator position, wrist angle]
+     * @return A position enum
      */
     public Position getArmState(){
         switch(row){

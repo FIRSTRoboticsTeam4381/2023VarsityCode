@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import frc.lib.util.CTREModuleState;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -38,7 +39,6 @@ public class TeleopSwerve extends CommandBase {
 
     private final Field2d m_field = new Field2d();
     private Pose2d startPose = new Pose2d(Units.inchesToMeters(177), Units.inchesToMeters(214), Rotation2d.fromDegrees(0));
-
     /*
     private final int limit = 5;
     private final SlewRateLimiter m_ForwardBackLimit = new SlewRateLimiter(limit);
@@ -120,7 +120,11 @@ public class TeleopSwerve extends CommandBase {
 
 
         translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
-        s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
+        if(!RobotContainer.arm.LOCKOUT){
+            s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
+        }else{
+            s_Swerve.drive(new Translation2d(0,0), 0, true, true);
+        }
 
         m_field.setRobotPose(s_Swerve.getPose());
 
