@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -74,7 +75,6 @@ public class RobotContainer {
 
     stationSelector = new StationSelector(DriverStation.getAlliance());
 
-    arm.runToPosition(Position.TRANSIT);
   }
 
   /**
@@ -105,59 +105,66 @@ public class RobotContainer {
           //.andThen(arm.runToPosition())
       )));
 
-    /*
-    /* Arm Intake Button Commands 
+    
+    /* Arm Intake Button Commands */
     specialsController.triangle()
-      .onTrue(arm.runToPosition(Position.UPCONE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
-
-    specialsController.square()
-      .onTrue(arm.runToPosition(Position.TIPCONE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
-
-    specialsController.cross()
-      .onTrue(arm.runToPosition(Position.HUMANSLIDE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCONE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     specialsController.circle()
-      .onTrue(arm.runToPosition(Position.HUMANUPRIGHT))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
-       */ 
+    .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
+    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
+    specialsController.cross()
+    .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
+    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
+    specialsController.square()
+    .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
+    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.L1()
+    .onTrue(new InstantCommand(() -> arm.setState(Position.HIGHPLACE)))
+    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.R1()
+    .onTrue(new InstantCommand(() -> arm.setState(Position.MIDPLACE)))
+    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+/*
     testingController.button(3)
-      .onTrue(arm.runToPosition(Position.HIGHPLACE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HIGHPLACE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
     
 
     testingController.button(4)
-      .onTrue(arm.runToPosition(Position.MIDPLACE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.MIDPLACE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(9)
-      .onTrue(arm.runToPosition(Position.UPCONE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(10)
-      .onTrue(arm.runToPosition(Position.CUBE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(11)
-      .onTrue(arm.runToPosition(Position.AUTOCUBE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.AUTOCUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(12)
-      .onTrue(arm.runToPosition(Position.HUMANCUBE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(7)
-      .onTrue(arm.runToPosition(Position.HUMANCONE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCONE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(8)
-      .onTrue(arm.runToPosition(Position.HUMANSLIDE))
-      .onFalse(arm.runToPosition(Position.TRANSIT));
-    
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+    */
   }
 
   /**
