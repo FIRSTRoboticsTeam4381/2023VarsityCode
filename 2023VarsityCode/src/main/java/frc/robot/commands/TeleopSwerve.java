@@ -116,7 +116,7 @@ public class TeleopSwerve extends CommandBase {
         if(!RobotContainer.arm.LOCKOUT){
             s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
         }else{
-            s_Swerve.drive(new Translation2d(0,0), 0, true, true);
+            s_Swerve.drive(new Translation2d(0,0), rotation*0.5, true, true);
         }
 
 

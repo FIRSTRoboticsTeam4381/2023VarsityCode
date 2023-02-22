@@ -95,14 +95,26 @@ public class RobotContainer {
     specialsTopDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
     specialsBottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
 
-    /* Auto Place Command */
+
+    /* Auto Place Command 
     driveController.R1().and(driveController.L1()).onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         Autos.followTrajectory(
           Autos.runToPlace(s_Swerve.getPose()))
-          //.andThen(arm.runToPosition())
       )));
-    
+    */
+
+    /*Line up command */
+    driveController.R1().and(driveController.L1()).onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        Autos.followTrajectory(
+          Autos.lineUp(s_Swerve.getPose()))
+          //.andThen(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
+          //.until(() -> arm.placed())
+          //.andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT)))
+      )));
+
+
     /* Arm Intake Button Commands */
     specialsController.triangle()
       .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCONE)))

@@ -176,7 +176,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void autoReset(){
-        if(ll.targetingResults.targets_Fiducials.length > 1){
+        if(ll.targetingResults.targets_Fiducials.length > 1 || ll.targetingResults.targets_Fiducials[0].ta > 1){
             resetOdometry(limePose());
             zeroGyro((DriverStation.getAlliance() == Alliance.Red)
                 ?

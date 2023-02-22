@@ -101,6 +101,22 @@ public final class Autos {
                 Rotation2d.fromDegrees(180-yaw))
             );
     }
+
+    public static PathPlannerTrajectory lineUp(Pose2d swervePose){
+        double adj = (swervePose.getY() > RobotContainer.stationSelector.getStagePoint()[1])? -1.0:1.0;
+        double yaw = RobotContainer.s_Swerve.getYaw().getDegrees();
+        return PathPlanner.generatePath(
+            new PathConstraints(2, 1.5),
+            new PathPoint(swervePose.getTranslation(), 
+                Rotation2d.fromDegrees(adj*90), 
+                0),
+            new PathPoint(new Translation2d(
+                RobotContainer.stationSelector.getPlacePoint()[0], 
+                RobotContainer.stationSelector.getPlacePoint()[1]), 
+                Rotation2d.fromDegrees(-180), 
+                Rotation2d.fromDegrees(180-yaw))
+            );
+    }
     
     /**
      * Auto to test PathPlanner

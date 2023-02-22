@@ -59,6 +59,7 @@ public class IntakeArm extends SubsystemBase{
     private Position position = Position.TRANSIT;
     private IntakeAction intakeAction = IntakeAction.HOLD;
     private double intakeHoldPos = 0;
+    private double intakePlaceNum = 0;
     private boolean brakeEnable = false;
     public boolean LOCKOUT = false;
 
@@ -179,6 +180,9 @@ public class IntakeArm extends SubsystemBase{
         return armTilt1Encoder.getPosition();
     }
 
+    public boolean placed(){
+        return intakeAction == IntakeAction.PLACE && intakeEncoder.getPosition() > intakeHoldPos+3;
+    }
 
     public enum Position{
         TRANSIT,
@@ -226,6 +230,7 @@ public class IntakeArm extends SubsystemBase{
             switch(intakeAction){
                 case HOLD:
                     intakeHoldPID.setReference(intakeHoldPos, ControlType.kPosition);
+                    intakePlaceNum = intakeHoldPos;
                     break;
                 case INTAKE:
                     intakeHoldPos = intakeEncoder.getPosition()-0.01;
@@ -235,6 +240,9 @@ public class IntakeArm extends SubsystemBase{
                     if(RobotContainer.stationSelector.getType().equals("Cone")){
                         intakeHoldPos = intakeEncoder.getPosition()+0.01;
                         intake.set(1);
+                    }else if(RobotContainer.stationSelector.getType().equals("Cube")){
+                        intakeHoldPos = intakeEncoder.getPosition();
+                        intake.set(0.1);
                     }else{
                         intakeHoldPos = intakeEncoder.getPosition();
                         intake.set(0.5);
@@ -243,7 +251,7 @@ public class IntakeArm extends SubsystemBase{
                 }
         }
 
-        LOCKOUT = armExtensionEncoder.getPosition() < -3;
+        LOCKOUT = armExtensionEncoder.getPosition() < -3 && (position == Position.HIGHPLACE || position == Position.MIDPLACE);
 
     }
 }
