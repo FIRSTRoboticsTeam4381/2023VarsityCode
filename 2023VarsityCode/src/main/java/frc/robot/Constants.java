@@ -13,6 +13,7 @@ public final class Constants {
 
     public static final class IntakeArm {
 
+        public static final int brakeMotorCAN = 54;
         public static final int armTilt1CAN = 55;
         public static final int armTilt2CAN = 56;
         public static final int armExtensionCAN = 57;

@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
   private SparkMaxPIDController armTiltPID;
   private SparkMaxPIDController armExtendPID;
   private boolean brakeEnable = true;
-  private final Joystick testingController = new Joystick(3);
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -75,6 +75,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
+    /*
     armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
     armTilt2 = new CANSparkMax(Constants.IntakeArm.armTilt2CAN, MotorType.kBrushless);
     armExtend = new CANSparkMax(Constants.IntakeArm.armExtensionCAN, MotorType.kBrushless);
@@ -122,7 +123,7 @@ public class Robot extends TimedRobot {
     wristTilt.setSelectedSensorPosition(0);
     wristTilt.configPeakOutputForward(0.5);
     wristTilt.configPeakOutputReverse(-0.5);
-    wristTilt.config_kP(0, 0.1);
+    wristTilt.config_kP(0, 0.12);
     wristTilt.configAllowableClosedloopError(0, 0, 0);
     
     intakeEncoder = intake.getEncoder();
@@ -134,6 +135,7 @@ public class Robot extends TimedRobot {
     
 
     armTilt1.set(0);
+    */
   }
 
   /**
@@ -192,13 +194,14 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    
+    /*
     SmartDashboard.putNumber("Arm angle 1", armTilt1Encoder.getPosition());
     SmartDashboard.putNumber("Arm angle 2", armTilt2Encoder.getPosition());
     SmartDashboard.putNumber("Arm angle Absolute", armTiltAbsoluteEncoder.getPosition());
     SmartDashboard.putNumber("Wrist angle", wristTilt.getSelectedSensorPosition());
     SmartDashboard.putNumber("Arm Extension", armExtensionEncoder.getPosition());
-
+    */
+/*
     if(testingController.getRawButton(3)){
       double pos = 22.618;
       armTiltPID.setReference(pos, ControlType.kPosition);
@@ -214,9 +217,9 @@ public class Robot extends TimedRobot {
       armTiltPID.setReference(53.25, ControlType.kPosition);
       armExtendPID.setReference(0, ControlType.kPosition);
     }else{
-      armTiltPID.setReference(0, ControlType.kPosition);
-      armExtendPID.setReference(0, ControlType.kPosition);
-      wristTilt.set(TalonSRXControlMode.Position, 0);
+      //armTiltPID.setReference(0, ControlType.kPosition);
+      //armExtendPID.setReference(0, ControlType.kPosition);
+      //wristTilt.set(TalonSRXControlMode.Position, 0);
     }
 
     if(testingController.getRawButton(1)){
@@ -228,7 +231,7 @@ public class Robot extends TimedRobot {
     }
 
     brake.set((testingController.getThrottle()+1)/2);
-
+*/
   }
   
 

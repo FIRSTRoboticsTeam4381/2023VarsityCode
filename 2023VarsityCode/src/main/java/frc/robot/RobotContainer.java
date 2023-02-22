@@ -9,12 +9,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.*;
@@ -43,6 +45,8 @@ public class RobotContainer {
   private final Trigger specialsTopDpad = specialsController.povUp();
   private final Trigger specialsBottomDpad = specialsController.povDown();
   
+  private final CommandJoystick testingController = new CommandJoystick(3);
+  
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
   public static final IntakeArm arm = new IntakeArm();
@@ -69,6 +73,8 @@ public class RobotContainer {
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
 
     stationSelector = new StationSelector(DriverStation.getAlliance());
+
+    arm.runToPosition(Position.TRANSIT);
   }
 
   /**
@@ -99,8 +105,8 @@ public class RobotContainer {
           //.andThen(arm.runToPosition())
       )));
 
-    
-    /* Arm Intake Button Commands */
+    /*
+    /* Arm Intake Button Commands 
     specialsController.triangle()
       .onTrue(arm.runToPosition(Position.UPCONE))
       .onFalse(arm.runToPosition(Position.TRANSIT));
@@ -116,7 +122,42 @@ public class RobotContainer {
     specialsController.circle()
       .onTrue(arm.runToPosition(Position.HUMANUPRIGHT))
       .onFalse(arm.runToPosition(Position.TRANSIT));
-        
+       */ 
+
+
+    testingController.button(3)
+      .onTrue(arm.runToPosition(Position.HIGHPLACE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+    
+
+    testingController.button(4)
+      .onTrue(arm.runToPosition(Position.MIDPLACE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    testingController.button(9)
+      .onTrue(arm.runToPosition(Position.UPCONE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    testingController.button(10)
+      .onTrue(arm.runToPosition(Position.CUBE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    testingController.button(11)
+      .onTrue(arm.runToPosition(Position.AUTOCUBE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    testingController.button(12)
+      .onTrue(arm.runToPosition(Position.HUMANCUBE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    testingController.button(7)
+      .onTrue(arm.runToPosition(Position.HUMANCONE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+
+    testingController.button(8)
+      .onTrue(arm.runToPosition(Position.HUMANSLIDE))
+      .onFalse(arm.runToPosition(Position.TRANSIT));
+    
   }
 
   /**
