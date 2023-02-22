@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.SwerveModule;
+import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 //import frc.robot.LimelightResults;
@@ -25,8 +26,7 @@ public class Swerve extends SubsystemBase {
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
-    //private LimelightHelpers ll;
-    private NetworkTable limeLight;
+    private LimelightResults ll;
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
@@ -44,8 +44,7 @@ public class Swerve extends SubsystemBase {
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getPositions());
         
 
-        //LimelightResults ll = LimelightHelpers.getLatestResults("");
-        limeLight = NetworkTableInstance.getDefault().getTable("limelight");
+        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
     }
 
     /**
@@ -137,18 +136,6 @@ public class Swerve extends SubsystemBase {
         return positions;
     }
 
-    public Pose2d limePose(){
-        double[] defaultPose = {0, 0, 0, 0, 99};
-        Pose2d limePose2d;
-        if(limeLight.getEntry("tid").getInteger(-1) > -1){
-            double[] limeArray = limeLight.getEntry("botpose").getDoubleArray(defaultPose);
-            limePose2d = new Pose2d(limeArray[0]+8.27, limeArray[1]+4.01, Rotation2d.fromDegrees(limeArray[5]));
-        }else{
-            limePose2d = new Pose2d(0,0,getYaw());
-        }
-        return limePose2d;
-    }
-
     /**
      * Use to reset angle to certain known angle or to zero
      * @param angle Desired new angle
@@ -178,11 +165,25 @@ public class Swerve extends SubsystemBase {
         return gyro.getPitch();
     }
     
-    
+    /*
+    public double align(){
+        return
+    }
+*/
+
+    public Pose2d limePose(){
+        return ll.targetingResults.getBotPose2d();
+    }
+
     public void autoReset(){
-        if(limeLight.getEntry("ta").getDouble(0) > 1){
+        if(ll.targetingResults.targets_Fiducials.length > 1){
             resetOdometry(limePose());
-            zeroGyro(limePose().getRotation().getDegrees() + ((DriverStation.getAlliance() == Alliance.Red)? 180:0));
+            zeroGyro((DriverStation.getAlliance() == Alliance.Red)
+                ?
+                ll.targetingResults.getBotPose2d_wpiRed().getRotation().getDegrees()
+                :
+                ll.targetingResults.getBotPose2d_wpiBlue().getRotation().getDegrees()
+                );
         }
     }
 
@@ -203,5 +204,6 @@ public class Swerve extends SubsystemBase {
 
         SmartDashboard.putString("XY Coord", "(" + getPose().getX() + ", " + getPose().getY() + ")");
 
+        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
     }
 }

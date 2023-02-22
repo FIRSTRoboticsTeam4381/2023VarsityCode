@@ -71,8 +71,6 @@ public class RobotContainer {
     m_AutoChooser.addOption("Balance", Autos.balanceCommad());
     SmartDashboard.putData(m_AutoChooser);
 
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
-
     stationSelector = new StationSelector(DriverStation.getAlliance());
 
   }
@@ -96,7 +94,7 @@ public class RobotContainer {
     specialsRightDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("R")));
     specialsTopDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
     specialsBottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
-    
+
     /* Auto Place Command */
     driveController.R1().and(driveController.L1()).onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
@@ -104,7 +102,6 @@ public class RobotContainer {
           Autos.runToPlace(s_Swerve.getPose()))
           //.andThen(arm.runToPosition())
       )));
-
     
     /* Arm Intake Button Commands */
     specialsController.triangle()
@@ -127,7 +124,6 @@ public class RobotContainer {
     specialsController.R1()
     .onTrue(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
     .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
 /*
     testingController.button(3)
       .onTrue(new InstantCommand(() -> arm.setState(Position.HIGHPLACE)))

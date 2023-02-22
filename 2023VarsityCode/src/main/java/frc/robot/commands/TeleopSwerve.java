@@ -62,11 +62,7 @@ public class TeleopSwerve extends CommandBase {
         headingController = new PIDController(0.008, 0, 0);
 
         SmartDashboard.putData("Field", m_field);
-
-        SmartDashboard.putNumber("Balance kP", kP);
-        SmartDashboard.putNumber("Balance kI", kI);
-        SmartDashboard.putNumber("Balance kD", kD);
-
+        
         m_field.setRobotPose(startPose);        
     }
 
@@ -77,16 +73,12 @@ public class TeleopSwerve extends CommandBase {
         double rAxisX = -controller.getRightX();
         double rAxisY = -controller.getRightY();
 
-        balancePID.setP(SmartDashboard.getNumber("Balance kP", kP));
-        balancePID.setI(SmartDashboard.getNumber("Balance kI", kI));
-        balancePID.setD(SmartDashboard.getNumber("Balance kD", kD));
-
         /* Deadbands */
         
         yAxis = (Math.abs(yAxis) < Constants.stickDeadband) ? 0 : yAxis;
         xAxis = (Math.abs(xAxis) < Constants.stickDeadband) ? 0 : xAxis;
         
-    
+        //Field Steer
         controller.share().onTrue(new InstantCommand(() -> absoluteRotation = !absoluteRotation));
         SmartDashboard.putBoolean("Absolute Rotation", absoluteRotation);
         if(absoluteRotation){
@@ -110,6 +102,7 @@ public class TeleopSwerve extends CommandBase {
         }
         SmartDashboard.putNumber("Desired Drive Heading", desiredAngle);
 
+        //Balancer
         boolean fieldRelative = true;
         if(controller.cross().getAsBoolean()){
             xAxis = 0.0;
@@ -125,6 +118,7 @@ public class TeleopSwerve extends CommandBase {
         }else{
             s_Swerve.drive(new Translation2d(0,0), 0, true, true);
         }
+
 
         m_field.setRobotPose(s_Swerve.getPose());
 

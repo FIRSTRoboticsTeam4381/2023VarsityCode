@@ -11,6 +11,8 @@ import frc.lib.util.SwerveModuleConstants;
 public final class Constants {
     public static final double stickDeadband = 0.1;
 
+    public static final String LimeLightName = "";
+
     public static final class IntakeArm {
 
         public static final int brakeMotorCAN = 54;
