@@ -9,8 +9,10 @@ public final class StationSelector {
 
     
     private final double[] redSidePlacePoints = {0.4,1.0,1.6,2.2,2.8,3.4,4.0,4.6,5.2};
-    private final double stagePos = 14.31;
-    private final double placePos = 14.73;
+    private final double[] blueSidePlacePoints = {5.2,4.6,4.0,3.4,2.8,2.2,1.6,1.0,0.4};
+    private final double redStagePos = 14.31;
+    private final double redPlacePos = 14.73;
+    private final double bluePlacePos = 1.66;
 
     private final double[] elevatorPositions = {};
     private final double[] wristAngles = {};
@@ -128,12 +130,15 @@ public final class StationSelector {
     }
 
 
-    public double[] getPlacePoint(){
-        return new double[] {placePos, redSidePlacePoints[index]};
+    public double[] getRedPlacePoint(){
+        return new double[] {redPlacePos, redSidePlacePoints[index]};
+    }
+    public double[] getBluePlacePoint(){
+        return new double[] {bluePlacePos, blueSidePlacePoints[index]};
     }
 
     public double[] getStagePoint(){
-        return new double[] {stagePos, redSidePlacePoints[index]};
+        return new double[] {redStagePos, redSidePlacePoints[index]};
     }
 
     /**

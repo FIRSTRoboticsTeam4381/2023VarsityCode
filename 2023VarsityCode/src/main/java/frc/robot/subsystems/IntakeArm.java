@@ -58,6 +58,7 @@ public class IntakeArm extends SubsystemBase{
 
     private Position position = Position.TRANSIT;
     private IntakeAction intakeAction = IntakeAction.HOLD;
+    private Type current = Type.CUBE;
     private double intakeHoldPos = 0;
     private double intakePlaceNum = 0;
     private boolean brakeEnable = false;
@@ -88,7 +89,7 @@ public class IntakeArm extends SubsystemBase{
         armTilt2.set(0);
 
         armTiltPID = armTilt1.getPIDController();
-        armTiltPID.setP(0.2);
+        armTiltPID.setP(0.1);
         armTiltPID.setI(0);
         armTiltPID.setD(0.003);
         armTiltPID.setFF(0.0002);
@@ -150,18 +151,23 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {23.02,-18.33,6894};
             case UPCONE:
                 intakeAction = IntakeAction.INTAKE;
+                current = Type.CONE;
                 return new double[] {55.88,0,-826};
             case CUBE:
                 intakeAction = IntakeAction.INTAKE;
+                current = Type.CUBE;
                 return new double[] {52.90,-1.07,1791};
             case AUTOCUBE:
                 intakeAction = IntakeAction.INTAKE;
+                current = Type.CUBE;
                 return new double[] {-40.54,-3.04,-4517};
             case HUMANCUBE:
                 intakeAction = IntakeAction.INTAKE;
+                current = Type.CUBE;
                 return new double[] {9.98,-11.98,8870};
             case HUMANCONE:
                 intakeAction = IntakeAction.INTAKE;
+                current = Type.CONE;
                 return new double[] {8.26,-13.83,8367};
             case HUMANSLIDE:
                 intakeAction = IntakeAction.INTAKE;
@@ -203,6 +209,11 @@ public class IntakeArm extends SubsystemBase{
         PLACE
     }
 
+    public enum Type{
+        CUBE,
+        CONE
+    }
+
 
     @Override
     public void periodic(){
@@ -237,6 +248,16 @@ public class IntakeArm extends SubsystemBase{
                     intake.set(-1);
                     break;
                 case PLACE:
+                    switch(current){
+                        case CUBE:
+                            intakeHoldPos = intakeEncoder.getPosition();
+                            intake.set(0.1);
+                            break;
+                        case CONE:
+                            intakeHoldPos = intakeEncoder.getPosition()+0.01;
+                            intake.set(1);
+                    }
+                /*
                     if(RobotContainer.stationSelector.getType().equals("Cone")){
                         intakeHoldPos = intakeEncoder.getPosition()+0.01;
                         intake.set(1);
@@ -248,6 +269,7 @@ public class IntakeArm extends SubsystemBase{
                         intake.set(0.5);
                     }                    
                     break;
+                */
                 }
         }
 

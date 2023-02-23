@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
@@ -172,11 +173,17 @@ public class Swerve extends SubsystemBase {
 */
 
     public Pose2d limePose(){
-        return ll.targetingResults.getBotPose2d();
+        Pose2d newPose = new Pose2d(
+            ll.targetingResults.getBotPose2d().getX()+8.27,
+            ll.targetingResults.getBotPose2d().getY()+4.01,
+            ll.targetingResults.getBotPose2d().getRotation()
+        );
+        return newPose;
     }
 
     public void autoReset(){
-        if(ll.targetingResults.targets_Fiducials.length > 1 || ll.targetingResults.targets_Fiducials[0].ta > 1){
+        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
+        if(ll.targetingResults.targets_Fiducials.length > 1 || (ll.targetingResults.targets_Fiducials.length > 0 && ll.targetingResults.targets_Fiducials[0].ta > 1)){
             resetOdometry(limePose());
             zeroGyro((DriverStation.getAlliance() == Alliance.Red)
                 ?
@@ -203,7 +210,5 @@ public class Swerve extends SubsystemBase {
         }
 
         SmartDashboard.putString("XY Coord", "(" + getPose().getX() + ", " + getPose().getY() + ")");
-
-        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
     }
 }
