@@ -127,8 +127,6 @@ public class TeleopSwerve extends CommandBase {
 
             s_Swerve.zeroGyro(s_Swerve.limePose().getRotation().getDegrees() + ((DriverStation.getAlliance() == Alliance.Red)? 180:0));
         }
-
-        s_Swerve.autoReset();
         
     }
 }

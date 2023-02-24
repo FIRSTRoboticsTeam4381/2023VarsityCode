@@ -154,7 +154,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     SmartDashboard.putString("Station", RobotContainer.stationSelector.getStation());
-    SmartDashboard.putString("Type", RobotContainer.stationSelector.getType());
+    SmartDashboard.putString("Type", RobotContainer.stationSelector.getType().toString());
     SmartDashboard.putString("KeyStroke", RobotContainer.stationSelector.getStroke());
   }
 

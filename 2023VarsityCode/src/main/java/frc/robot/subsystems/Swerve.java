@@ -210,5 +210,7 @@ public class Swerve extends SubsystemBase {
         }
 
         SmartDashboard.putString("XY Coord", "(" + getPose().getX() + ", " + getPose().getY() + ")");
+
+        //autoReset();
     }
 }

@@ -24,6 +24,7 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Balance;
+import frc.robot.subsystems.IntakeArm.Position;
 
 public final class Autos {
 
@@ -31,12 +32,16 @@ public final class Autos {
      * Events to be used in all Autos built with pathplanner
      */
     private static final Map<String, Command> eventMap = new HashMap<>(Map.ofEntries(
-        Map.entry("example1", Commands.print("Example 1 triggered")),
-        Map.entry("example2", Commands.print("Example 2 triggered")),
-        Map.entry("example3", Commands.print("Example 3 triggered")),
         Map.entry("lime", new InstantCommand(() -> NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3))),
         Map.entry("stop", new InstantCommand(() -> RobotContainer.s_Swerve.drive(new Translation2d(0,0), 0, true, true))),
-        Map.entry("balance", new Balance(RobotContainer.s_Swerve))
+        Map.entry("balance", new Balance(RobotContainer.s_Swerve)),
+        Map.entry("BackwardsCube", new InstantCommand(() -> RobotContainer.arm.setState(Position.AUTOCUBE))),
+        Map.entry("Transit", new InstantCommand(() -> RobotContainer.arm.setState(Position.TRANSIT))),
+        Map.entry("Cone", new InstantCommand(() -> RobotContainer.arm.setState(Position.UPCONE))),
+        Map.entry("HighPlace", Commands.run(() -> RobotContainer.arm.setState(Position.HIGHPLACE))
+                                    .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
+                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
+                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5)))
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
@@ -103,18 +108,17 @@ public final class Autos {
     }
 
     public static PathPlannerTrajectory lineUp(Pose2d swervePose){
-        double adj = (swervePose.getY() > RobotContainer.stationSelector.getStagePoint()[1])? 1.0:-1.0;
         double yaw = RobotContainer.s_Swerve.getYaw().getDegrees();
         return PathPlanner.generatePath(
             new PathConstraints(2, 1.5),
             new PathPoint(swervePose.getTranslation(), 
-                Rotation2d.fromDegrees(adj*90), 
+                Rotation2d.fromDegrees(0), 
                 0),
             new PathPoint(new Translation2d(
-                RobotContainer.stationSelector.getBluePlacePoint()[0], 
-                RobotContainer.stationSelector.getBluePlacePoint()[1]), 
-                Rotation2d.fromDegrees(-180), 
-                Rotation2d.fromDegrees(yaw))
+                RobotContainer.stationSelector.getRedPlacePoint()[0], 
+                RobotContainer.stationSelector.getRedPlacePoint()[1]), 
+                Rotation2d.fromDegrees(0), 
+                Rotation2d.fromDegrees(180-yaw))
             );
     }
     
@@ -134,6 +138,12 @@ public final class Autos {
             );
     }
 
+    public static Command threePiece(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePiece",
+            new PathConstraints(4, 3)));
+    }
+
+    
     public static Command blindMike(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("TheBlindingOfMicheal", 
             new PathConstraints(2, 1)));

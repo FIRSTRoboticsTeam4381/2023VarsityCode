@@ -6,6 +6,7 @@ import frc.robot.RobotContainer;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -58,7 +59,7 @@ public class IntakeArm extends SubsystemBase{
 
     private Position position = Position.TRANSIT;
     private IntakeAction intakeAction = IntakeAction.HOLD;
-    private Type current = Type.CUBE;
+    private Type current = Type.CONE;
     private double intakeHoldPos = 0;
     private double intakePlaceNum = 0;
     private boolean brakeEnable = false;
@@ -99,7 +100,7 @@ public class IntakeArm extends SubsystemBase{
         armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
 
         armExtendPID = armExtend.getPIDController();
-        armExtendPID.setP(0.5);
+        armExtendPID.setP(0.4);
         armExtendPID.setI(0);
         armExtendPID.setD(0.0004);
         armExtendPID.setFF(0.00017);
@@ -117,6 +118,7 @@ public class IntakeArm extends SubsystemBase{
         wristTilt.configAllowableClosedloopError(0, 0, 0);
         
         intakeEncoder = intake.getEncoder();
+        intakeEncoder.setPosition(0);
         intakeHoldPID = intake.getPIDController();
         intakeHoldPID.setP(0.5);
         intakeHoldPID.setReference(0, ControlType.kPosition);
@@ -145,10 +147,10 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {0,0,0};
             case HIGHPLACE:
                 intakeAction = IntakeAction.PLACE;
-                return new double[] {23.88,-32.09,5765};
+                return new double[] {25.83,-30.90,6357};
             case MIDPLACE:
                 intakeAction = IntakeAction.PLACE;
-                return new double[] {23.02,-18.33,6894};
+                return new double[] {26.47,-18.38,8200};
             case UPCONE:
                 intakeAction = IntakeAction.INTAKE;
                 current = Type.CONE;
@@ -160,7 +162,7 @@ public class IntakeArm extends SubsystemBase{
             case AUTOCUBE:
                 intakeAction = IntakeAction.INTAKE;
                 current = Type.CUBE;
-                return new double[] {-40.54,-3.04,-4517};
+                return new double[] {-54.69,0,-3259};
             case HUMANCUBE:
                 intakeAction = IntakeAction.INTAKE;
                 current = Type.CUBE;
@@ -171,10 +173,18 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {8.26,-13.83,8367};
             case HUMANSLIDE:
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {16.48,0,-2384};
+                current = Type.READFROMSELECTOR;
+                return new double[] {40.28,0,-3469};
             case HYBRID:
                 intakeAction = IntakeAction.PLACE;
                 return new double[] {55.88,0,-826};
+            case TIPCONE:
+                intakeAction = IntakeAction.INTAKE;
+                current = Type.CONE;
+                return new double[] {-62.09,-2.21,329};
+            case SHOOTCUBE:
+                intakeAction = IntakeAction.SHOOT;
+                return new double[] {0,0,4000};
             default:
                 intakeAction = IntakeAction.HOLD;
                 return new double[] {0,0,0};
@@ -186,8 +196,11 @@ public class IntakeArm extends SubsystemBase{
         return armTilt1Encoder.getPosition();
     }
 
-    public boolean placed(){
-        return intakeAction == IntakeAction.PLACE && intakeEncoder.getPosition() > intakeHoldPos+3;
+    public double getIntakeEncoder(){
+        return intakeEncoder.getPosition();
+    }
+    public double intakePlacePos(){
+        return intakePlaceNum;
     }
 
     public enum Position{
@@ -200,24 +213,35 @@ public class IntakeArm extends SubsystemBase{
         HUMANCUBE,
         HUMANCONE,
         HUMANSLIDE,
-        HYBRID
+        HYBRID,
+        TIPCONE,
+        SHOOTCUBE
     }
 
     public enum IntakeAction{
         HOLD,
         INTAKE,
-        PLACE
+        PLACE,
+        SHOOT
     }
 
     public enum Type{
         CUBE,
-        CONE
+        CONE,
+        READFROMSELECTOR
     }
 
 
     @Override
     public void periodic(){
         SmartDashboard.putNumber("Arm State", getArmState(position)[0]);
+
+        SmartDashboard.putNumber("intakePlace", intakePlaceNum);
+        SmartDashboard.putNumber("intake Encoder", intakeEncoder.getPosition());
+        SmartDashboard.putNumber("Arm angle encoder", armTilt1Encoder.getPosition());
+        SmartDashboard.putNumber("Arm Extend encoder", armExtensionEncoder.getPosition());
+        SmartDashboard.putNumber("Arm Wrist encoder", wristTilt.getSelectedSensorPosition());
+
 
         if(position == Position.TRANSIT){
             if(Math.abs(armExtensionEncoder.getPosition()) < 15){
@@ -236,6 +260,9 @@ public class IntakeArm extends SubsystemBase{
             armExtendPID.setReference(0, ControlType.kPosition);
             wristTilt.set(TalonSRXControlMode.Position, 0);
         }
+        if(current == Type.READFROMSELECTOR){
+            current = RobotContainer.stationSelector.getType();
+        }
 
         if((Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1)){
             switch(intakeAction){
@@ -244,18 +271,27 @@ public class IntakeArm extends SubsystemBase{
                     intakePlaceNum = intakeHoldPos;
                     break;
                 case INTAKE:
-                    intakeHoldPos = intakeEncoder.getPosition()-0.01;
+                    intakeHoldPos = intakeEncoder.getPosition()-0.04;
                     intake.set(-1);
+                    break;
+                case SHOOT:
+                    intakeHoldPos = intakeEncoder.getPosition()+0.01;
+                    if(Math.abs(wristTilt.getSelectedSensorPosition() - getArmState(position)[2]) < 500){
+                        intake.set(1);
+                    }else{
+                        intake.set(0);
+                    }
                     break;
                 case PLACE:
                     switch(current){
                         case CUBE:
                             intakeHoldPos = intakeEncoder.getPosition();
-                            intake.set(0.1);
+                            intake.set(0.25);
                             break;
                         case CONE:
                             intakeHoldPos = intakeEncoder.getPosition()+0.01;
                             intake.set(1);
+                            break;
                     }
                 /*
                     if(RobotContainer.stationSelector.getType().equals("Cone")){

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.IntakeArm.Position;
+import frc.robot.subsystems.IntakeArm.Type;
 
 public final class StationSelector {
 
@@ -37,14 +38,14 @@ public final class StationSelector {
      * 1 : cube
      * 2 : hybrid
      */
-    private String type;
+    private IntakeArm.Type type;
 
     public StationSelector(Alliance alliance){
         this.alliance = alliance;
         gridNum = 0;
         column = 0;
         row = 0;
-        type = "Cone";
+        type = Type.CONE;
     }
 
 
@@ -111,18 +112,18 @@ public final class StationSelector {
         }
 
         if(prevStroke.charAt(2) == 'B'){
-            type = "Hybrid";
+            type = Type.CONE;
         }else if(prevStroke.charAt(1) == 'B'){
-            type = "Cube";
+            type = Type.CUBE;
         }else{
-            type = "Cone";
+            type = Type.CONE;
         }
     }
     
     public String getStation(){
         return station;
     }
-    public String getType(){
+    public Type getType(){
         return type;
     }
     public String getStroke(){

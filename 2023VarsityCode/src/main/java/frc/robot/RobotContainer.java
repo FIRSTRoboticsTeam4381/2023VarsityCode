@@ -40,7 +40,8 @@ public class RobotContainer {
   private final Trigger zeroSwerve = driveController.options();
 
   /* Station Selector Buttons */
-  public static StationSelector stationSelector;
+  public static StationSelector
+   stationSelector = new StationSelector(DriverStation.getAlliance());;
   private final Trigger specialsLeftDpad = specialsController.povLeft();
   private final Trigger specialsRightDpad = specialsController.povRight();
   private final Trigger specialsTopDpad = specialsController.povUp();
@@ -69,9 +70,8 @@ public class RobotContainer {
     m_AutoChooser.addOption("PathPlanner Test", Autos.exampleAuto());
     m_AutoChooser.addOption("Micheals Eyes Worst Nightmare", Autos.blindMike());
     m_AutoChooser.addOption("Balance", Autos.balanceCommad());
+    m_AutoChooser.addOption("Three Piece", Autos.threePiece());
     SmartDashboard.putData(m_AutoChooser);
-
-    stationSelector = new StationSelector(DriverStation.getAlliance());
 
   }
 
@@ -106,13 +106,12 @@ public class RobotContainer {
 
     /*Line up command */
     driveController.R1().and(driveController.L1()).onTrue(
-      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        Autos.followTrajectory(
-          Autos.lineUp(s_Swerve.getPose()))
-          //.andThen(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
+        Autos.followTrajectory(Autos.lineUp(s_Swerve.getPose()))
+          //.andThen(Commands.run(() -> arm.setState(stationSelector.getArmState())))
           //.until(() -> arm.placed())
           //.andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT)))
-      )));
+    );
+        
 
 
     /* Arm Intake Button Commands */
@@ -121,21 +120,43 @@ public class RobotContainer {
       .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     specialsController.circle()
-    .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
-    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     specialsController.cross()
-    .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
-    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     specialsController.square()
-    .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
-    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     //Place on predetermined spot kind of
     specialsController.R1()
-    .onTrue(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
-    .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.L1()
+      .onTrue(Commands.run(() -> arm.setState(stationSelector.getArmState()))
+      .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3)
+      .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
+      .until(() -> Math.abs(arm.getArmAngle()) < 5)));
+
+    testingController.button(3)
+      .onTrue(new InstantCommand(() -> arm.setState(Position.AUTOCUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    testingController.button(4)
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    testingController.button(5)
+      .onTrue(new InstantCommand(() -> arm.setState(Position.TIPCONE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    testingController.button(6)
+      .onTrue(new InstantCommand(() -> arm.setState(Position.SHOOTCUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 /*
     testingController.button(3)
       .onTrue(new InstantCommand(() -> arm.setState(Position.HIGHPLACE)))
@@ -152,10 +173,6 @@ public class RobotContainer {
 
     testingController.button(10)
       .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    testingController.button(11)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.AUTOCUBE)))
       .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     testingController.button(12)
