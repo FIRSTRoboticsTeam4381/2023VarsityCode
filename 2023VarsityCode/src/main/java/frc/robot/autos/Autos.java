@@ -5,23 +5,15 @@ import java.util.Map;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Balance;
 import frc.robot.subsystems.IntakeArm.Position;
@@ -56,71 +48,6 @@ public final class Autos {
         RobotContainer.s_Swerve // The drive subsystem. Used to properly set the requirements of path following commands
     );
     
-    public static PPSwerveControllerCommand followTrajectory(PathPlannerTrajectory traj){
-        return new PPSwerveControllerCommand(
-            traj, 
-            RobotContainer.s_Swerve::getPose,
-            Constants.Swerve.swerveKinematics,
-            new PIDController(5.0, 0, 0),
-            new PIDController(5.0, 0, 0),
-            new PIDController(0.5, 0, 0),
-            RobotContainer.s_Swerve::setModuleStates,
-            true,
-            RobotContainer.s_Swerve
-        );
-    }
-    
-
-    public static PathPlannerTrajectory goToPoint(double pointX, double pointY, Pose2d swervePose){
-        return PathPlanner.generatePath(
-            new PathConstraints(2, 1.5),
-            new PathPoint(swervePose.getTranslation(), swervePose.getRotation(), Rotation2d.fromDegrees(0)),
-            new PathPoint(new Translation2d(pointX, pointY), Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(0))
-            );
-    }
-
-    /*
-     * Possible waypoint angle calculation
-     *      90+Math.tan(
-            (swervePose.getX()-RobotContainer.stationSelector.getStagePoint()[0])/
-            (swervePose.getY()-RobotContainer.stationSelector.getStagePoint()[1])))
-     */
-
-    public static PathPlannerTrajectory runToPlace(Pose2d swervePose){
-        double adj = (swervePose.getY() > RobotContainer.stationSelector.getStagePoint()[1])? -1.0:1.0;
-        double yaw = RobotContainer.s_Swerve.getYaw().getDegrees();
-        return PathPlanner.generatePath(
-            new PathConstraints(2, 1.5),
-            new PathPoint(swervePose.getTranslation(), 
-                Rotation2d.fromDegrees(adj*90), 
-                0),
-            new PathPoint(new Translation2d(
-                RobotContainer.stationSelector.getStagePoint()[0], 
-                RobotContainer.stationSelector.getStagePoint()[1]), 
-                Rotation2d.fromDegrees(adj*45), 
-                Rotation2d.fromDegrees(180-yaw)),
-            new PathPoint(new Translation2d(
-                RobotContainer.stationSelector.getRedPlacePoint()[0], 
-                RobotContainer.stationSelector.getRedPlacePoint()[1]), 
-                Rotation2d.fromDegrees(-180), 
-                Rotation2d.fromDegrees(180-yaw))
-            );
-    }
-
-    public static PathPlannerTrajectory lineUp(Pose2d swervePose){
-        double yaw = RobotContainer.s_Swerve.getYaw().getDegrees();
-        return PathPlanner.generatePath(
-            new PathConstraints(2, 1.5),
-            new PathPoint(swervePose.getTranslation(), 
-                Rotation2d.fromDegrees(0), 
-                0),
-            new PathPoint(new Translation2d(
-                RobotContainer.stationSelector.getRedPlacePoint()[0], 
-                RobotContainer.stationSelector.getRedPlacePoint()[1]), 
-                Rotation2d.fromDegrees(0), 
-                Rotation2d.fromDegrees(180-yaw))
-            );
-    }
     
     /**
      * Auto to test PathPlanner
@@ -147,10 +74,6 @@ public final class Autos {
     public static Command blindMike(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("TheBlindingOfMicheal", 
             new PathConstraints(2, 1)));
-    }
-
-    public static Command goToPoint(double pointX, double pointY){;
-        return followTrajectory(goToPoint(pointX, pointY, RobotContainer.s_Swerve.getPose()));
     }
 
     public static Command balanceCommad(){

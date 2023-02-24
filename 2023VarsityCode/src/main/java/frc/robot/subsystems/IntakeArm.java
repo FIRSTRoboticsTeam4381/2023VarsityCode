@@ -1,33 +1,20 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
-
-import java.util.Map;
-
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxLimitSwitch;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 public class IntakeArm extends SubsystemBase{
 
@@ -40,26 +27,15 @@ public class IntakeArm extends SubsystemBase{
     private RelativeEncoder armTilt2Encoder;
     private RelativeEncoder armExtensionEncoder;
 
-    private SparkMaxLimitSwitch upperElevatorLimit;
-    private SparkMaxLimitSwitch lowerElevataorLimit;
-
     private SparkMaxPIDController armTiltPID;
     private SparkMaxPIDController armExtendPID;
-    private ArmFeedforward wristFF;
-    private ArmFeedforward armFF;
-    private ElevatorFeedforward extendFF;
 
     private CANSparkMax intake;
     private RelativeEncoder intakeEncoder;
     private SparkMaxPIDController intakeHoldPID;
 
-    private double armAngle = 0;
-    private double wristAngle = 0;
-    private double extension = 0; 
-
     private Position position = Position.TRANSIT;
     private IntakeAction intakeAction = IntakeAction.HOLD;
-    private Type current = Type.CONE;
     private double intakeHoldPos = 0;
     private double intakePlaceNum = 0;
     private boolean brakeEnable = false;
@@ -153,34 +129,27 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {26.47,-18.38,8200};
             case UPCONE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.CONE;
                 return new double[] {55.88,0,-826};
             case CUBE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.CUBE;
                 return new double[] {52.90,-1.07,1791};
             case AUTOCUBE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.CUBE;
                 return new double[] {-54.69,0,-3259};
             case HUMANCUBE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.CUBE;
                 return new double[] {9.98,-11.98,8870};
             case HUMANCONE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.CONE;
                 return new double[] {8.26,-13.83,8367};
             case HUMANSLIDE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.READFROMSELECTOR;
                 return new double[] {40.28,0,-3469};
             case HYBRID:
                 intakeAction = IntakeAction.PLACE;
                 return new double[] {55.88,0,-826};
             case TIPCONE:
                 intakeAction = IntakeAction.INTAKE;
-                current = Type.CONE;
                 return new double[] {-62.09,-2.21,329};
             case SHOOTCUBE:
                 intakeAction = IntakeAction.SHOOT;
@@ -227,8 +196,7 @@ public class IntakeArm extends SubsystemBase{
 
     public enum Type{
         CUBE,
-        CONE,
-        READFROMSELECTOR
+        CONE
     }
 
 
@@ -260,9 +228,6 @@ public class IntakeArm extends SubsystemBase{
             armExtendPID.setReference(0, ControlType.kPosition);
             wristTilt.set(TalonSRXControlMode.Position, 0);
         }
-        if(current == Type.READFROMSELECTOR){
-            current = RobotContainer.stationSelector.getType();
-        }
 
         if((Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1)){
             switch(intakeAction){
@@ -283,7 +248,7 @@ public class IntakeArm extends SubsystemBase{
                     }
                     break;
                 case PLACE:
-                    switch(current){
+                    switch(RobotContainer.stationSelector.getType()){
                         case CUBE:
                             intakeHoldPos = intakeEncoder.getPosition();
                             intake.set(0.25);
@@ -293,19 +258,6 @@ public class IntakeArm extends SubsystemBase{
                             intake.set(1);
                             break;
                     }
-                /*
-                    if(RobotContainer.stationSelector.getType().equals("Cone")){
-                        intakeHoldPos = intakeEncoder.getPosition()+0.01;
-                        intake.set(1);
-                    }else if(RobotContainer.stationSelector.getType().equals("Cube")){
-                        intakeHoldPos = intakeEncoder.getPosition();
-                        intake.set(0.1);
-                    }else{
-                        intakeHoldPos = intakeEncoder.getPosition();
-                        intake.set(0.5);
-                    }                    
-                    break;
-                */
                 }
         }
 

@@ -1,27 +1,23 @@
 package frc.robot.subsystems;
 
-import frc.robot.SwerveModule;
-import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-//import frc.robot.LimelightResults;
-
 import com.ctre.phoenix.sensors.Pigeon2;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.LimelightResults;
+import frc.robot.SwerveModule;
 
 public class Swerve extends SubsystemBase {
     public SwerveDriveOdometry swerveOdometry;
@@ -166,12 +162,8 @@ public class Swerve extends SubsystemBase {
         return gyro.getPitch();
     }
     
-    /*
-    public double align(){
-        return
-    }
-*/
 
+    
     public Pose2d limePose(){
         Pose2d newPose = new Pose2d(
             ll.targetingResults.getBotPose2d().getX()+8.27,
@@ -183,7 +175,7 @@ public class Swerve extends SubsystemBase {
 
     public void autoReset(){
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        if(ll.targetingResults.targets_Fiducials.length > 1 || (ll.targetingResults.targets_Fiducials.length > 0 && ll.targetingResults.targets_Fiducials[0].ta > 1)){
+        if(ll.targetingResults.targets_Fiducials.length > 0){
             resetOdometry(limePose());
             zeroGyro((DriverStation.getAlliance() == Alliance.Red)
                 ?
@@ -210,7 +202,5 @@ public class Swerve extends SubsystemBase {
         }
 
         SmartDashboard.putString("XY Coord", "(" + getPose().getX() + ", " + getPose().getY() + ")");
-
-        //autoReset();
     }
 }

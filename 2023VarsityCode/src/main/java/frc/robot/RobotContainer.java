@@ -6,24 +6,23 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.autos.*;
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
+import frc.robot.autos.Autos;
+import frc.robot.autos.StationSelector;
+import frc.robot.commands.TeleopSwerve;
+import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.IntakeArm.Position;
+import frc.robot.subsystems.IntakeArm.Type;
+import frc.robot.subsystems.Swerve;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -40,14 +39,11 @@ public class RobotContainer {
   private final Trigger zeroSwerve = driveController.options();
 
   /* Station Selector Buttons */
-  public static StationSelector
-   stationSelector = new StationSelector(DriverStation.getAlliance());;
+  public static StationSelector stationSelector = new StationSelector(Position.HIGHPLACE, Type.CONE);
   private final Trigger specialsLeftDpad = specialsController.povLeft();
   private final Trigger specialsRightDpad = specialsController.povRight();
   private final Trigger specialsTopDpad = specialsController.povUp();
   private final Trigger specialsBottomDpad = specialsController.povDown();
-  
-  private final CommandJoystick testingController = new CommandJoystick(3);
   
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
@@ -86,107 +82,65 @@ public class RobotContainer {
     /* Swerve Reset Button */
     zeroSwerve
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
-      .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));
+      .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));     
 
-    
-    /* Station Selector Commands */
-    specialsLeftDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("L")));
-    specialsRightDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("R")));
-    specialsTopDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("T")));
-    specialsBottomDpad.onTrue(new InstantCommand(() -> stationSelector.addStroke("B")));
-
-
-    /* Auto Place Command 
-    driveController.R1().and(driveController.L1()).onTrue(
-      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        Autos.followTrajectory(
-          Autos.runToPlace(s_Swerve.getPose()))
-      )));
-    */
-
-    /*Line up command */
-    driveController.R1().and(driveController.L1()).onTrue(
-        Autos.followTrajectory(Autos.lineUp(s_Swerve.getPose()))
-          //.andThen(Commands.run(() -> arm.setState(stationSelector.getArmState())))
-          //.until(() -> arm.placed())
-          //.andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT)))
-    );
-        
-
-
-    /* Arm Intake Button Commands */
-    specialsController.triangle()
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    specialsController.circle()
-      .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    specialsController.cross()
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    specialsController.square()
-      .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    //Place on predetermined spot kind of
-    specialsController.R1()
-      .onTrue(new InstantCommand(() -> arm.setState(stationSelector.getArmState())))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    specialsController.L1()
-      .onTrue(Commands.run(() -> arm.setState(stationSelector.getArmState()))
+    driveController.R1()
+      .onTrue(Commands.run(() -> arm.setState(stationSelector.getPos()))
       .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3)
       .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
       .until(() -> Math.abs(arm.getArmAngle()) < 5)));
 
-    testingController.button(3)
+    //driveController.L1().onTrue(lineup());
+
+    specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));
+    specialsController.L1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE)));
+
+    specialsTopDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HIGHPLACE)));
+    specialsLeftDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
+    specialsRightDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
+    specialsBottomDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HYBRID)));
+
+    specialsController.R1()
+      .and(specialsController.triangle())
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.R1()
+      .and(specialsController.circle())
       .onTrue(new InstantCommand(() -> arm.setState(Position.AUTOCUBE)))
       .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
-    testingController.button(4)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    testingController.button(5)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.TIPCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    testingController.button(6)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.SHOOTCUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-/*
-    testingController.button(3)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HIGHPLACE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-    
-
-    testingController.button(4)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.MIDPLACE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    testingController.button(9)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    testingController.button(10)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-
-    testingController.button(12)
+    specialsController.R1()
+      .and(specialsController.square())
       .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
       .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
-    testingController.button(7)
+    specialsController.R1()
+      .and(specialsController.cross())
+      .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.L1()
+      .and(specialsController.triangle())
+      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.L1()
+      .and(specialsController.circle())
+      .onTrue(new InstantCommand(() -> arm.setState(Position.TIPCONE)))
+      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+
+    specialsController.L1()
+      .and(specialsController.square())
       .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCONE)))
       .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
-    testingController.button(8)
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
+    specialsController.L1()
+      .and(specialsController.cross())
+      .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
       .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
-    */
+
+
   }
 
   /**
