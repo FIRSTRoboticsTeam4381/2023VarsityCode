@@ -89,56 +89,69 @@ public class RobotContainer {
       .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3)
       .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
       .until(() -> Math.abs(arm.getArmAngle()) < 5)));
+    
+    driveController.R1().onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(180)));
 
     //driveController.L1().onTrue(lineup());
+
+    specialsController.touchpad().onTrue(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));
     specialsController.L1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE)));
 
-    specialsTopDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HIGHPLACE)));
-    specialsLeftDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
-    specialsRightDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
-    specialsBottomDpad.onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HYBRID)));
+    specialsController.povUp().onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HIGHPLACE)));
+    specialsController.povDown().onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HYBRID)));
+    specialsController.povLeft()
+      .or(specialsController.povRight())
+      .onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
 
     specialsController.R1()
       .and(specialsController.triangle())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.HUMANSLIDE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.R1()
       .and(specialsController.circle())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.AUTOCUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.AUTOCUBE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.R1()
       .and(specialsController.square())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.HUMANCUBE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.R1()
       .and(specialsController.cross())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.CUBE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.CUBE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.L1()
       .and(specialsController.triangle())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANSLIDE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.HUMANSLIDE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.L1()
       .and(specialsController.circle())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.TIPCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.TIPCONE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.L1()
       .and(specialsController.square())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.HUMANCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.HUMANCONE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
     specialsController.L1()
       .and(specialsController.cross())
-      .onTrue(new InstantCommand(() -> arm.setState(Position.UPCONE)))
-      .onFalse(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
+      .onTrue(Commands.run(() -> arm.setState(Position.UPCONE))
+        .until(() -> Math.abs(arm.getIntakeVelocity()) < 50 || specialsController.touchpad().getAsBoolean())
+        .andThen(new InstantCommand(() -> arm.setState(Position.TRANSIT))));
 
 
   }

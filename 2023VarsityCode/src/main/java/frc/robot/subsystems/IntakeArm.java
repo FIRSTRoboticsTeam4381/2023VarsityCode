@@ -40,6 +40,7 @@ public class IntakeArm extends SubsystemBase{
     private double intakePlaceNum = 0;
     private boolean brakeEnable = false;
     public boolean LOCKOUT = false;
+    private boolean atSpeed = false;
 
     public IntakeArm() {
 
@@ -68,7 +69,7 @@ public class IntakeArm extends SubsystemBase{
         armTiltPID = armTilt1.getPIDController();
         armTiltPID.setP(0.1);
         armTiltPID.setI(0);
-        armTiltPID.setD(0.003);
+        armTiltPID.setD(0.0015);
         armTiltPID.setFF(0.0002);
         armTiltPID.setOutputRange(-0.5, 0.5);
         armTilt1.setIdleMode(IdleMode.kBrake);
@@ -88,9 +89,9 @@ public class IntakeArm extends SubsystemBase{
         wristTilt.setNeutralMode(NeutralMode.Brake);
         wristTilt.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
         wristTilt.setSelectedSensorPosition(0);
-        wristTilt.configPeakOutputForward(0.5);
-        wristTilt.configPeakOutputReverse(-0.5);
-        wristTilt.config_kP(0, 0.12);
+        wristTilt.configPeakOutputForward(0.75);
+        wristTilt.configPeakOutputReverse(-0.75);
+        wristTilt.config_kP(0, 0.4);
         wristTilt.configAllowableClosedloopError(0, 0, 0);
         
         intakeEncoder = intake.getEncoder();
@@ -118,40 +119,40 @@ public class IntakeArm extends SubsystemBase{
 
     public double[] getArmState(Position pos){
         switch(pos){
-            case TRANSIT:
+            case TRANSIT://GOOD
                 intakeAction = IntakeAction.HOLD;
                 return new double[] {0,0,0};
-            case HIGHPLACE:
+            case HIGHPLACE://GOOD
                 intakeAction = IntakeAction.PLACE;
                 return new double[] {25.83,-30.90,6357};
-            case MIDPLACE:
+            case MIDPLACE://GOOD
                 intakeAction = IntakeAction.PLACE;
                 return new double[] {26.47,-18.38,8200};
-            case UPCONE:
+            case UPCONE://GOOD
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {55.88,0,-826};
-            case CUBE:
+                return new double[] {62,0,-2000};
+            case CUBE://GOOD
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {52.90,-1.07,1791};
-            case AUTOCUBE:
+                return new double[] {56.90,-1.07,2091};
+            case AUTOCUBE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {-54.69,0,-3259};
-            case HUMANCUBE:
+            case HUMANCUBE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {9.98,-11.98,8870};
-            case HUMANCONE:
+            case HUMANCONE://GOOD
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {8.26,-13.83,8367};
-            case HUMANSLIDE:
+                return new double[] {12.42,-14.0,6516};
+            case HUMANSLIDE://GOOD
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {40.28,0,-3469};
-            case HYBRID:
+                return new double[] {-48.16,0,4631};
+            case HYBRID://GOOD
                 intakeAction = IntakeAction.PLACE;
                 return new double[] {55.88,0,-826};
-            case TIPCONE:
+            case TIPCONE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {-62.09,-2.21,329};
-            case SHOOTCUBE:
+            case SHOOTCUBE://GOOD
                 intakeAction = IntakeAction.SHOOT;
                 return new double[] {0,0,4000};
             default:
@@ -167,6 +168,13 @@ public class IntakeArm extends SubsystemBase{
 
     public double getIntakeEncoder(){
         return intakeEncoder.getPosition();
+    }
+    public double getIntakeVelocity(){
+        if(!atSpeed){
+            return 101;
+        }else{
+            return intakeEncoder.getVelocity();
+        }
     }
     public double intakePlacePos(){
         return intakePlaceNum;
@@ -202,14 +210,14 @@ public class IntakeArm extends SubsystemBase{
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Arm State", getArmState(position)[0]);
-
-        SmartDashboard.putNumber("intakePlace", intakePlaceNum);
+        SmartDashboard.putNumber("intake encoder velocity", intakeEncoder.getVelocity());
         SmartDashboard.putNumber("intake Encoder", intakeEncoder.getPosition());
         SmartDashboard.putNumber("Arm angle encoder", armTilt1Encoder.getPosition());
         SmartDashboard.putNumber("Arm Extend encoder", armExtensionEncoder.getPosition());
         SmartDashboard.putNumber("Arm Wrist encoder", wristTilt.getSelectedSensorPosition());
-
+        SmartDashboard.putNumber("Arm angle setpoint", getArmState(position)[0]);
+        SmartDashboard.putNumber("Arm extend setpoint", getArmState(position)[1]);
+        SmartDashboard.putNumber("Arm wrist setpoint", getArmState(position)[2]);
 
         if(position == Position.TRANSIT){
             if(Math.abs(armExtensionEncoder.getPosition()) < 15){
@@ -229,19 +237,28 @@ public class IntakeArm extends SubsystemBase{
             wristTilt.set(TalonSRXControlMode.Position, 0);
         }
 
-        if((Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1)){
+        if(Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1 && Math.abs(armTilt1Encoder.getPosition() - getArmState(position)[0]) < 10){
             switch(intakeAction){
                 case HOLD:
-                    intakeHoldPID.setReference(intakeHoldPos, ControlType.kPosition);
-                    intakePlaceNum = intakeHoldPos;
+                    if(RobotContainer.stationSelector.getType() == Type.CUBE){
+                        intake.set(-0.05);
+                        intakeHoldPos = intakeEncoder.getPosition();
+                    }else{
+                        intakeHoldPID.setReference(intakeHoldPos, ControlType.kPosition);
+                    }
+                    intakePlaceNum = intakeEncoder.getPosition();
+                    atSpeed = false;
                     break;
                 case INTAKE:
                     intakeHoldPos = intakeEncoder.getPosition()-0.04;
                     intake.set(-1);
+                    if(Math.abs(intakeEncoder.getVelocity()) > 3500){
+                        atSpeed = true;
+                    }
                     break;
                 case SHOOT:
                     intakeHoldPos = intakeEncoder.getPosition()+0.01;
-                    if(Math.abs(wristTilt.getSelectedSensorPosition() - getArmState(position)[2]) < 500){
+                    if(Math.abs(wristTilt.getSelectedSensorPosition() - getArmState(position)[2]) < 300){
                         intake.set(1);
                     }else{
                         intake.set(0);

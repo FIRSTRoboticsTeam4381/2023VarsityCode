@@ -11,8 +11,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.RobotContainer;
+import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.IntakeArm.Type;
 
 
 public class TeleopSwerve extends CommandBase {
@@ -41,6 +44,7 @@ public class TeleopSwerve extends CommandBase {
     private final SlewRateLimiter m_SideSideLimit = new SlewRateLimiter(limit);
     private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(limit);
     */
+    private LimelightResults ll;
 
     /**
      * Driver Control command
@@ -57,7 +61,8 @@ public class TeleopSwerve extends CommandBase {
 
         SmartDashboard.putData("Field", m_field);
         
-        m_field.setRobotPose(startPose);        
+        m_field.setRobotPose(startPose);    
+        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);    
     }
 
     @Override
@@ -107,17 +112,27 @@ public class TeleopSwerve extends CommandBase {
             fieldRelative = false;
         }
 
-
-        translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
-        if(!RobotContainer.arm.LOCKOUT){
+        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?2:1);
+        double x = 0;
+        if(controller.L1().getAsBoolean()){
+            ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
+            if(ll.targetingResults.targets_Retro.length > 0){
+                x = ll.targetingResults.targets_Retro[0].tx*-0.025;
+                translation = new Translation2d(yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, rotation, false, openLoop);
+            }else if(ll.targetingResults.targets_Fiducials.length > 0){
+                x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
+                translation = new Translation2d(yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, rotation, false, openLoop);
+            }
+        }else if(!RobotContainer.arm.LOCKOUT){
+            translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
-        }else if(controller.L1().getAsBoolean()){
-            //Lineup
-        }
-        else{
+        }else{
             s_Swerve.drive(new Translation2d(0,0), rotation*0.5, true, true);
         }
 
+        SmartDashboard.putNumber("X", x);
 
         m_field.setRobotPose(s_Swerve.getPose());
     }
