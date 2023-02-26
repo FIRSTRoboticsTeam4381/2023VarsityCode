@@ -1,5 +1,8 @@
 package frc.robot.commands;
 
+import com.ctre.phoenix.CANifier;
+import com.ctre.phoenix.CANifier.LEDChannel;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,16 +27,12 @@ public class TeleopSwerve extends CommandBase {
     private Translation2d translation;
     private boolean openLoop;
     
-    /*
-    private boolean absoluteRotation = false;
-    private double desiredAngle;
     private PIDController headingController = new PIDController(0.008, 0, 0);
-    */
 
     private Swerve s_Swerve;
     private CommandPS4Controller controller;
 
-    private double kP = 0.015, kI = 0.0, kD = 0.007;
+    private double kP = 0.02, kI = 0.0, kD = 0;
     private PIDController balancePID = new PIDController(kP, kI, kD);
 
     private final Field2d m_field = new Field2d();
@@ -77,32 +76,6 @@ public class TeleopSwerve extends CommandBase {
         rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;
         rotation = rAxis * Constants.Swerve.maxAngularVelocity;
 
-        //Field Steer
-        /*
-        controller.share().onTrue(new InstantCommand(() -> absoluteRotation = !absoluteRotation));
-        SmartDashboard.putBoolean("Absolute Rotation", absoluteRotation);
-        if(absoluteRotation){
-            if(Math.abs(rAxisX) + Math.abs(rAxisY) >=0.8){
-                desiredAngle = new Translation2d(-rAxisY, -rAxisX).getAngle().getDegrees() + 180;
-            }
-            
-            double currentAngle = s_Swerve.getYaw().getDegrees()%360;
-            //Account for flip
-            if(desiredAngle - currentAngle > 180){
-                desiredAngle = -((360-desiredAngle)+currentAngle);
-                currentAngle = 0;
-            }
-
-            headingController.setSetpoint(desiredAngle);
-            rotation = MathUtil.clamp(headingController.calculate(currentAngle), -0.75, 0.75);
-            rotation *= Constants.Swerve.maxAngularVelocity;
-        }else{
-            
-            desiredAngle = 0;
-        }
-        SmartDashboard.putNumber("Desired Drive Heading", desiredAngle);
-        */
-
         //Balancer
         boolean fieldRelative = true;
         if(controller.cross().getAsBoolean()){
@@ -118,13 +91,18 @@ public class TeleopSwerve extends CommandBase {
             ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
             if(ll.targetingResults.targets_Retro.length > 0){
                 x = ll.targetingResults.targets_Retro[0].tx*-0.025;
-                translation = new Translation2d(yAxis, x).times(Constants.Swerve.maxSpeed);
-                s_Swerve.drive(translation, rotation, false, openLoop);
+                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
             }else if(ll.targetingResults.targets_Fiducials.length > 0){
                 x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
-                translation = new Translation2d(yAxis, x).times(Constants.Swerve.maxSpeed);
-                s_Swerve.drive(translation, rotation, false, openLoop);
+                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
             }
+        }else if(controller.povLeft().getAsBoolean()){
+            double balanceAxis = MathUtil.clamp(balancePID.calculate(s_Swerve.getPitch(), 0.0), -0.3, 0.3);
+
+            translation = new Translation2d(balanceAxis, 0.0).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, 0, false, true);
         }else if(!RobotContainer.arm.LOCKOUT){
             translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
@@ -135,5 +113,20 @@ public class TeleopSwerve extends CommandBase {
         SmartDashboard.putNumber("X", x);
 
         m_field.setRobotPose(s_Swerve.getPose());
+    }
+
+
+    private double steerAlign(double desiredAngle, double currentAngle){
+        currentAngle = s_Swerve.getYaw().getDegrees()%360;
+        //Account for flip
+        if(desiredAngle - currentAngle > 180){
+            desiredAngle = -((360-desiredAngle)+currentAngle);
+            currentAngle = 0;
+        }
+
+        headingController.setSetpoint(desiredAngle);
+        rotation = MathUtil.clamp(headingController.calculate(currentAngle), -0.75, 0.75);
+        rotation *= Constants.Swerve.maxAngularVelocity;
+        return rotation;
     }
 }

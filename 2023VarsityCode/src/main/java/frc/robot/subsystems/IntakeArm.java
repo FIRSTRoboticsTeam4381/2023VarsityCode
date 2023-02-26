@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.CANifier;
+import com.ctre.phoenix.CANifier.LEDChannel;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
@@ -14,9 +16,15 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class IntakeArm extends SubsystemBase{
+
+    private CANifier leds;
+    private double[] yellow = {0.2,1,0};
+    private double[] purple = {0,1,1};
+    private double[] set = {};
 
     private CANSparkMax armTilt1;
     private CANSparkMax armTilt2;
@@ -81,17 +89,19 @@ public class IntakeArm extends SubsystemBase{
         armExtendPID.setI(0);
         armExtendPID.setD(0.0004);
         armExtendPID.setFF(0.00017);
-        armExtendPID.setOutputRange(-0.75, 0.4);
+        armExtendPID.setOutputRange(-0.75, 0.3);
         armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
         armExtend.setIdleMode(IdleMode.kBrake);
 
         wristTilt.configFactoryDefault();
         wristTilt.setNeutralMode(NeutralMode.Brake);
-        wristTilt.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        wristTilt.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         wristTilt.setSelectedSensorPosition(0);
-        wristTilt.configPeakOutputForward(0.75);
-        wristTilt.configPeakOutputReverse(-0.75);
-        wristTilt.config_kP(0, 0.4);
+        wristTilt.configPeakOutputForward(0.6);
+        wristTilt.configPeakOutputReverse(-0.6);
+        wristTilt.config_kP(0, 1);
+        wristTilt.config_kD(0, 0);
+        wristTilt.config_kF(0, 0);
         wristTilt.configAllowableClosedloopError(0, 0, 0);
         
         intakeEncoder = intake.getEncoder();
@@ -102,6 +112,8 @@ public class IntakeArm extends SubsystemBase{
 
         //Enable brake
         enableBrake();
+
+        leds = new CANifier(49);
     }
 
     private void enableBrake(){
@@ -122,13 +134,13 @@ public class IntakeArm extends SubsystemBase{
             case TRANSIT://GOOD
                 intakeAction = IntakeAction.HOLD;
                 return new double[] {0,0,0};
-            case HIGHPLACE://GOOD
+            case HIGHPLACE://GOOD - Move up a tad because it hits pylon sometimes
                 intakeAction = IntakeAction.PLACE;
-                return new double[] {25.83,-30.90,6357};
-            case MIDPLACE://GOOD
+                return new double[] {29.12,-32.0,6583};
+            case MIDPLACE://GOOD - Move up a tad because it hits pylon sometimes
                 intakeAction = IntakeAction.PLACE;
-                return new double[] {26.47,-18.38,8200};
-            case UPCONE://GOOD
+                return new double[] {30.85,-15.64,5950};
+            case UPCONE://GOOD - Check again
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {62,0,-2000};
             case CUBE://GOOD
@@ -142,7 +154,7 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {9.98,-11.98,8870};
             case HUMANCONE://GOOD
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {12.42,-14.0,6516};
+                return new double[] {12.42,-12.5,6500};
             case HUMANSLIDE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {-48.16,0,4631};
@@ -152,7 +164,7 @@ public class IntakeArm extends SubsystemBase{
             case TIPCONE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {-62.09,-2.21,329};
-            case SHOOTCUBE://GOOD
+            case SHOOTMIDCUBE://GOOD
                 intakeAction = IntakeAction.SHOOT;
                 return new double[] {0,0,4000};
             default:
@@ -192,7 +204,7 @@ public class IntakeArm extends SubsystemBase{
         HUMANSLIDE,
         HYBRID,
         TIPCONE,
-        SHOOTCUBE
+        SHOOTMIDCUBE
     }
 
     public enum IntakeAction{
@@ -210,6 +222,13 @@ public class IntakeArm extends SubsystemBase{
 
     @Override
     public void periodic(){
+        
+        set = (RobotContainer.stationSelector.getType() == Type.CUBE)?purple:yellow;
+        leds.setLEDOutput(set[0], LEDChannel.LEDChannelA);
+        leds.setLEDOutput(set[1], LEDChannel.LEDChannelB);
+        leds.setLEDOutput(set[2], LEDChannel.LEDChannelC);
+        
+
         SmartDashboard.putNumber("intake encoder velocity", intakeEncoder.getVelocity());
         SmartDashboard.putNumber("intake Encoder", intakeEncoder.getPosition());
         SmartDashboard.putNumber("Arm angle encoder", armTilt1Encoder.getPosition());
@@ -217,7 +236,7 @@ public class IntakeArm extends SubsystemBase{
         SmartDashboard.putNumber("Arm Wrist encoder", wristTilt.getSelectedSensorPosition());
         SmartDashboard.putNumber("Arm angle setpoint", getArmState(position)[0]);
         SmartDashboard.putNumber("Arm extend setpoint", getArmState(position)[1]);
-        SmartDashboard.putNumber("Arm wrist setpoint", getArmState(position)[2]);
+        SmartDashboard.putNumber("Arm wrist setpoint", getArmState(position)[2]/3.68);
 
         if(position == Position.TRANSIT){
             if(Math.abs(armExtensionEncoder.getPosition()) < 15){
@@ -231,7 +250,21 @@ public class IntakeArm extends SubsystemBase{
 
         if(Math.abs(armTilt1Encoder.getPosition() - getArmState(position)[0]) < 2){
             armExtendPID.setReference(getArmState(position)[1], ControlType.kPosition);
-            wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]); //Wrist down
+            if(position == Position.HIGHPLACE){
+                if(armExtensionEncoder.getPosition() < -15){
+                    wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
+                }else{
+                    wristTilt.set(TalonSRXControlMode.Position, 0);
+                }
+            }else if(position == Position.MIDPLACE){
+                if(armExtensionEncoder.getPosition() < -1){
+                    wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
+                }else{
+                    wristTilt.set(TalonSRXControlMode.Position, 0);
+                }
+            }else{
+                wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
+            }
         }else{
             armExtendPID.setReference(0, ControlType.kPosition);
             wristTilt.set(TalonSRXControlMode.Position, 0);
@@ -250,7 +283,7 @@ public class IntakeArm extends SubsystemBase{
                     atSpeed = false;
                     break;
                 case INTAKE:
-                    intakeHoldPos = intakeEncoder.getPosition()-0.04;
+                    intakeHoldPos = intakeEncoder.getPosition()-1;
                     intake.set(-1);
                     if(Math.abs(intakeEncoder.getVelocity()) > 3500){
                         atSpeed = true;
@@ -258,8 +291,8 @@ public class IntakeArm extends SubsystemBase{
                     break;
                 case SHOOT:
                     intakeHoldPos = intakeEncoder.getPosition()+0.01;
-                    if(Math.abs(wristTilt.getSelectedSensorPosition() - getArmState(position)[2]) < 300){
-                        intake.set(1);
+                    if(Math.abs(wristTilt.getSelectedSensorPosition() - (getArmState(position)[2]/3.68)) < 300){
+                        intake.set(0.9);
                     }else{
                         intake.set(0);
                     }
@@ -271,7 +304,7 @@ public class IntakeArm extends SubsystemBase{
                             intake.set(0.25);
                             break;
                         case CONE:
-                            intakeHoldPos = intakeEncoder.getPosition()+0.01;
+                            intakeHoldPos = intakeEncoder.getPosition()+2;
                             intake.set(1);
                             break;
                     }

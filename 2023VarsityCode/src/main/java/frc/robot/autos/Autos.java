@@ -17,6 +17,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Balance;
 import frc.robot.subsystems.IntakeArm.Position;
+import frc.robot.subsystems.IntakeArm.Type;
 
 public final class Autos {
 
@@ -30,6 +31,7 @@ public final class Autos {
         Map.entry("BackwardsCube", new InstantCommand(() -> RobotContainer.arm.setState(Position.AUTOCUBE))),
         Map.entry("Transit", new InstantCommand(() -> RobotContainer.arm.setState(Position.TRANSIT))),
         Map.entry("Cone", new InstantCommand(() -> RobotContainer.arm.setState(Position.UPCONE))),
+        Map.entry("SetCube", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))),
         Map.entry("HighPlace", Commands.run(() -> RobotContainer.arm.setState(Position.HIGHPLACE))
                                     .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
                                     .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
@@ -65,8 +67,8 @@ public final class Autos {
             );
     }
 
-    public static Command threePiece(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePiece",
+    public static Command twoPiece(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("TwoPieceBalance",
             new PathConstraints(4, 3)));
     }
 

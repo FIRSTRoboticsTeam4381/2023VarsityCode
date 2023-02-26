@@ -27,7 +27,7 @@ public final class StationSelector {
     }
     public Position getPos(){
         if(type == Type.CUBE && position == Position.MIDPLACE){
-            return Position.SHOOTCUBE;
+            return Position.SHOOTMIDCUBE;
         }
         return position;
     }
