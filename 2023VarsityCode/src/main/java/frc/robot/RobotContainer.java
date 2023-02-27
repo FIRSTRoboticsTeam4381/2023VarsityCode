@@ -62,11 +62,8 @@ public class RobotContainer {
     
     //Add autonoumous options to chooser
     m_AutoChooser.setDefaultOption("None", Autos.none());
-    m_AutoChooser.addOption("SingleConeAuto", Autos.singleCone());
-    m_AutoChooser.addOption("PathPlanner Test", Autos.exampleAuto());
-    m_AutoChooser.addOption("Micheals Eyes Worst Nightmare", Autos.blindMike());
-    m_AutoChooser.addOption("Balance", Autos.balanceCommad());
-    m_AutoChooser.addOption("Three Piece", Autos.twoPiece());
+    m_AutoChooser.addOption("Three Piece", Autos.threePiece());
+    m_AutoChooser.addOption("ConePark", Autos.coneBalance());
     SmartDashboard.putData(m_AutoChooser);
 
   }

@@ -32,11 +32,9 @@ public class TeleopSwerve extends CommandBase {
     private Swerve s_Swerve;
     private CommandPS4Controller controller;
 
-    private double kP = 0.02, kI = 0.0, kD = 0;
+    private double kP = 0.01, kI = 0.0, kD = 0;
     private PIDController balancePID = new PIDController(kP, kI, kD);
 
-    private final Field2d m_field = new Field2d();
-    private Pose2d startPose = new Pose2d(Units.inchesToMeters(177), Units.inchesToMeters(214), Rotation2d.fromDegrees(0));
     /*
     private final int limit = 5;
     private final SlewRateLimiter m_ForwardBackLimit = new SlewRateLimiter(limit);
@@ -57,10 +55,7 @@ public class TeleopSwerve extends CommandBase {
 
         this.controller = controller;
         this.openLoop = openLoop;
-
-        SmartDashboard.putData("Field", m_field);
         
-        m_field.setRobotPose(startPose);    
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);    
     }
 
@@ -99,9 +94,9 @@ public class TeleopSwerve extends CommandBase {
                 s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
             }
         }else if(controller.povLeft().getAsBoolean()){
-            double balanceAxis = MathUtil.clamp(balancePID.calculate(s_Swerve.getPitch(), 0.0), -0.3, 0.3);
+            yAxis = MathUtil.clamp(balancePID.calculate(s_Swerve.getPitch(), 0.0), -0.2, 0.2);
 
-            translation = new Translation2d(balanceAxis, 0.0).times(Constants.Swerve.maxSpeed);
+            translation = new Translation2d((Math.abs(s_Swerve.getPitch()) > 4)?yAxis:0, 0.0).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, 0, false, true);
         }else if(!RobotContainer.arm.LOCKOUT){
             translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
@@ -112,7 +107,7 @@ public class TeleopSwerve extends CommandBase {
 
         SmartDashboard.putNumber("X", x);
 
-        m_field.setRobotPose(s_Swerve.getPose());
+        
     }
 
 

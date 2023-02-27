@@ -28,6 +28,8 @@ public final class StationSelector {
     public Position getPos(){
         if(type == Type.CUBE && position == Position.MIDPLACE){
             return Position.SHOOTMIDCUBE;
+        }else if(type == Type.CUBE && position == Position.HIGHPLACE){
+            return Position.SHOOTHIGHCUBE;
         }
         return position;
     }

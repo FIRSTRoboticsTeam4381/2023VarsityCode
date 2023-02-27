@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -21,7 +22,7 @@ import frc.robot.RobotContainer;
 
 public class IntakeArm extends SubsystemBase{
 
-    private CANifier leds;
+   // private CANifier leds;
     private double[] yellow = {0.2,1,0};
     private double[] purple = {0,1,1};
     private double[] set = {};
@@ -34,6 +35,7 @@ public class IntakeArm extends SubsystemBase{
     private RelativeEncoder armTilt1Encoder;
     private RelativeEncoder armTilt2Encoder;
     private RelativeEncoder armExtensionEncoder;
+    private RelativeEncoder armPivotEncoder;
 
     private SparkMaxPIDController armTiltPID;
     private SparkMaxPIDController armExtendPID;
@@ -64,6 +66,7 @@ public class IntakeArm extends SubsystemBase{
 
         armTilt1Encoder = armTilt1.getEncoder();
         armTilt2Encoder = armTilt2.getEncoder();
+        //armPivotEncoder = armTilt1.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
 
         armTilt1Encoder.setPosition(0);
         armTilt2Encoder.setPosition(0);
@@ -79,7 +82,7 @@ public class IntakeArm extends SubsystemBase{
         armTiltPID.setI(0);
         armTiltPID.setD(0.0015);
         armTiltPID.setFF(0.0002);
-        armTiltPID.setOutputRange(-0.5, 0.5);
+        armTiltPID.setOutputRange(-1, 1);
         armTilt1.setIdleMode(IdleMode.kBrake);
 
         armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
@@ -89,7 +92,7 @@ public class IntakeArm extends SubsystemBase{
         armExtendPID.setI(0);
         armExtendPID.setD(0.0004);
         armExtendPID.setFF(0.00017);
-        armExtendPID.setOutputRange(-0.75, 0.3);
+        armExtendPID.setOutputRange(-0.75, 0.4);
         armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
         armExtend.setIdleMode(IdleMode.kBrake);
 
@@ -113,7 +116,7 @@ public class IntakeArm extends SubsystemBase{
         //Enable brake
         enableBrake();
 
-        leds = new CANifier(49);
+        //leds = new CANifier(49);
     }
 
     private void enableBrake(){
@@ -167,6 +170,9 @@ public class IntakeArm extends SubsystemBase{
             case SHOOTMIDCUBE://GOOD
                 intakeAction = IntakeAction.SHOOT;
                 return new double[] {0,0,4000};
+            case SHOOTHIGHCUBE://GOOD
+                intakeAction = IntakeAction.SHOOT;
+                return new double[] {32,-15,-1000};
             default:
                 intakeAction = IntakeAction.HOLD;
                 return new double[] {0,0,0};
@@ -204,7 +210,8 @@ public class IntakeArm extends SubsystemBase{
         HUMANSLIDE,
         HYBRID,
         TIPCONE,
-        SHOOTMIDCUBE
+        SHOOTMIDCUBE,
+        SHOOTHIGHCUBE
     }
 
     public enum IntakeAction{
@@ -222,16 +229,16 @@ public class IntakeArm extends SubsystemBase{
 
     @Override
     public void periodic(){
-        
+        /*
         set = (RobotContainer.stationSelector.getType() == Type.CUBE)?purple:yellow;
         leds.setLEDOutput(set[0], LEDChannel.LEDChannelA);
         leds.setLEDOutput(set[1], LEDChannel.LEDChannelB);
         leds.setLEDOutput(set[2], LEDChannel.LEDChannelC);
-        
+        */
 
         SmartDashboard.putNumber("intake encoder velocity", intakeEncoder.getVelocity());
         SmartDashboard.putNumber("intake Encoder", intakeEncoder.getPosition());
-        SmartDashboard.putNumber("Arm angle encoder", armTilt1Encoder.getPosition());
+        SmartDashboard.putNumber("Arm angle encoder",armTilt1Encoder.getPosition()/1.474);
         SmartDashboard.putNumber("Arm Extend encoder", armExtensionEncoder.getPosition());
         SmartDashboard.putNumber("Arm Wrist encoder", wristTilt.getSelectedSensorPosition());
         SmartDashboard.putNumber("Arm angle setpoint", getArmState(position)[0]);
@@ -240,24 +247,18 @@ public class IntakeArm extends SubsystemBase{
 
         if(position == Position.TRANSIT){
             if(Math.abs(armExtensionEncoder.getPosition()) < 15){
-                armTiltPID.setReference(getArmState(position)[0], ControlType.kPosition);
+                armTiltPID.setReference(1.474*getArmState(position)[0], ControlType.kPosition);
             }else{
-                armTiltPID.setReference(getArmState(Position.HIGHPLACE)[0], ControlType.kPosition);
+                armTiltPID.setReference(1.474*getArmState(Position.HIGHPLACE)[0], ControlType.kPosition);
             }
         }else{
-            armTiltPID.setReference(getArmState(position)[0], ControlType.kPosition);
+            armTiltPID.setReference(1.474*getArmState(position)[0], ControlType.kPosition);
         }
 
-        if(Math.abs(armTilt1Encoder.getPosition() - getArmState(position)[0]) < 2){
+        if(Math.abs(armTilt1Encoder.getPosition()/1.474 - getArmState(position)[0]) < 2){
             armExtendPID.setReference(getArmState(position)[1], ControlType.kPosition);
             if(position == Position.HIGHPLACE){
-                if(armExtensionEncoder.getPosition() < -15){
-                    wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
-                }else{
-                    wristTilt.set(TalonSRXControlMode.Position, 0);
-                }
-            }else if(position == Position.MIDPLACE){
-                if(armExtensionEncoder.getPosition() < -1){
+                if(armExtensionEncoder.getPosition() < -12){
                     wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
                 }else{
                     wristTilt.set(TalonSRXControlMode.Position, 0);
@@ -270,7 +271,7 @@ public class IntakeArm extends SubsystemBase{
             wristTilt.set(TalonSRXControlMode.Position, 0);
         }
 
-        if(Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1 && Math.abs(armTilt1Encoder.getPosition() - getArmState(position)[0]) < 10){
+        if(Math.abs(armExtensionEncoder.getPosition() - getArmState(position)[1]) < 1 && Math.abs(armTilt1Encoder.getPosition() - getArmState(position)[0]*1.474) < 10){
             switch(intakeAction){
                 case HOLD:
                     if(RobotContainer.stationSelector.getType() == Type.CUBE){
@@ -292,7 +293,7 @@ public class IntakeArm extends SubsystemBase{
                 case SHOOT:
                     intakeHoldPos = intakeEncoder.getPosition()+0.01;
                     if(Math.abs(wristTilt.getSelectedSensorPosition() - (getArmState(position)[2]/3.68)) < 300){
-                        intake.set(0.9);
+                        intake.set(0.75);
                     }else{
                         intake.set(0);
                     }
