@@ -16,13 +16,14 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class IntakeArm extends SubsystemBase{
 
-   // private CANifier leds;
+    private CANifier leds;
     private double[] yellow = {0.2,1,0};
     private double[] purple = {0,1,1};
     private double[] set = {};
@@ -51,6 +52,8 @@ public class IntakeArm extends SubsystemBase{
     private boolean brakeEnable = false;
     public boolean LOCKOUT = false;
     private boolean atSpeed = false;
+
+    private CommandPS4Controller secretAdjust = new CommandPS4Controller(1);
 
     public IntakeArm() {
 
@@ -116,7 +119,7 @@ public class IntakeArm extends SubsystemBase{
         //Enable brake
         enableBrake();
 
-        //leds = new CANifier(49);
+        leds = new CANifier(49);
     }
 
     private void enableBrake(){
@@ -142,10 +145,10 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {29.12,-32.0,6583};
             case MIDPLACE://GOOD - Move up a tad because it hits pylon sometimes
                 intakeAction = IntakeAction.PLACE;
-                return new double[] {30.85,-15.64,5950};
-            case UPCONE://GOOD - Check again
+                return new double[] {29.5,-14.24,4550};
+            case UPCONE://GOOD - Check again - Added little adjust
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {62,0,-2000};
+                return new double[] {54,-3*(secretAdjust.getR2Axis()),0 + 3000*(secretAdjust.getR2Axis())};
             case CUBE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {56.90,-1.07,2091};
@@ -157,7 +160,7 @@ public class IntakeArm extends SubsystemBase{
                 return new double[] {9.98,-11.98,8870};
             case HUMANCONE://GOOD
                 intakeAction = IntakeAction.INTAKE;
-                return new double[] {12.42,-12.5,6500};
+                return new double[] {13.37,-16.35 + 3*(secretAdjust.getR2Axis()),8000};
             case HUMANSLIDE://GOOD
                 intakeAction = IntakeAction.INTAKE;
                 return new double[] {-48.16,0,4631};
@@ -229,12 +232,10 @@ public class IntakeArm extends SubsystemBase{
 
     @Override
     public void periodic(){
-        /*
         set = (RobotContainer.stationSelector.getType() == Type.CUBE)?purple:yellow;
         leds.setLEDOutput(set[0], LEDChannel.LEDChannelA);
         leds.setLEDOutput(set[1], LEDChannel.LEDChannelB);
         leds.setLEDOutput(set[2], LEDChannel.LEDChannelC);
-        */
 
         SmartDashboard.putNumber("intake encoder velocity", intakeEncoder.getVelocity());
         SmartDashboard.putNumber("intake Encoder", intakeEncoder.getPosition());
@@ -246,10 +247,10 @@ public class IntakeArm extends SubsystemBase{
         SmartDashboard.putNumber("Arm wrist setpoint", getArmState(position)[2]/3.68);
 
         if(position == Position.TRANSIT){
-            if(Math.abs(armExtensionEncoder.getPosition()) < 15){
+            if(Math.abs(armExtensionEncoder.getPosition()) < 8){
                 armTiltPID.setReference(1.474*getArmState(position)[0], ControlType.kPosition);
             }else{
-                armTiltPID.setReference(1.474*getArmState(Position.HIGHPLACE)[0], ControlType.kPosition);
+                armTiltPID.setReference(1.474*getArmState(RobotContainer.stationSelector.getPrevPosition())[0], ControlType.kPosition);
             }
         }else{
             armTiltPID.setReference(1.474*getArmState(position)[0], ControlType.kPosition);
@@ -259,6 +260,12 @@ public class IntakeArm extends SubsystemBase{
             armExtendPID.setReference(getArmState(position)[1], ControlType.kPosition);
             if(position == Position.HIGHPLACE){
                 if(armExtensionEncoder.getPosition() < -12){
+                    wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
+                }else{
+                    wristTilt.set(TalonSRXControlMode.Position, 0);
+                }
+            }else if(position == Position.MIDPLACE){
+                if(armExtensionEncoder.getPosition() < -0.25){
                     wristTilt.set(TalonSRXControlMode.Position, getArmState(position)[2]/3.68); //Wrist down
                 }else{
                     wristTilt.set(TalonSRXControlMode.Position, 0);

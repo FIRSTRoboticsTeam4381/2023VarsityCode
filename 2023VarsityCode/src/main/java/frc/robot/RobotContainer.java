@@ -62,8 +62,10 @@ public class RobotContainer {
     
     //Add autonoumous options to chooser
     m_AutoChooser.setDefaultOption("None", Autos.none());
-    m_AutoChooser.addOption("Three Piece", Autos.threePiece());
+    m_AutoChooser.addOption("Three Piece Grab", Autos.threePiece());
     m_AutoChooser.addOption("ConePark", Autos.coneBalance());
+    m_AutoChooser.addOption("Three Piece Place", Autos.threePiecePlace());
+    m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
     SmartDashboard.putData(m_AutoChooser);
 
   }
@@ -87,9 +89,17 @@ public class RobotContainer {
       .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
       .until(() -> Math.abs(arm.getArmAngle()) < 5)));
     
-    driveController.R1().onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(180)));
+    driveController.R1().and(()->stationSelector.getType()==Type.CONE).onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(180)));
 
     //driveController.L1().onTrue(lineup());
+
+    driveController.touchpad().onTrue(
+      new InstantCommand(() -> stationSelector.setType(Type.CUBE))
+      .andThen(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE))
+      .andThen(Commands.run(() -> arm.setState(stationSelector.getPos()))
+      .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3)
+      .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
+      .until(() -> Math.abs(arm.getArmAngle()) < 5)))));
 
     specialsController.touchpad().onTrue(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 

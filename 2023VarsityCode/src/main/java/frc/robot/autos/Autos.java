@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Balance;
 import frc.robot.subsystems.IntakeArm.Position;
@@ -33,26 +34,32 @@ public final class Autos {
         Map.entry("Transit", new InstantCommand(() -> RobotContainer.arm.setState(Position.TRANSIT))),
         Map.entry("Cone", new InstantCommand(() -> RobotContainer.arm.setState(Position.UPCONE))),
         Map.entry("SetCube", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))),
-        Map.entry("HighPlace", Commands.run(() -> RobotContainer.arm.setState(Position.HIGHPLACE))
+        Map.entry("HighPlace", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CONE))
+                                    .andThen(new InstantCommand(() -> RobotContainer.stationSelector.setPos(Position.HIGHPLACE))
+                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(RobotContainer.stationSelector.getPos()))
                                     .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
                                     .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
-                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5))),
-        Map.entry("CubePlace", Commands.run(() -> RobotContainer.arm.setState(Position.SHOOTHIGHCUBE))
+                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5))))),
+        Map.entry("CubePlace", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))
+                                    .andThen(new InstantCommand(() -> RobotContainer.stationSelector.setPos(Position.HIGHPLACE))
+                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(RobotContainer.stationSelector.getPos()))
                                     .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
                                     .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
-                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5))),
-        Map.entry("MidPlace", Commands.run(() -> RobotContainer.arm.setState(Position.SHOOTMIDCUBE))
+                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5))))),
+        Map.entry("MidPlace", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))
+                                    .andThen(new InstantCommand(() -> RobotContainer.stationSelector.setPos(Position.MIDPLACE))
+                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(RobotContainer.stationSelector.getPos()))
                                     .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
                                     .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
-                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5)))
+                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5)))))
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         RobotContainer.s_Swerve::getPose, // Pose2d supplier
         RobotContainer.s_Swerve::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.Swerve.swerveKinematics, // SwerveDriveKinematics
-        new PIDConstants(6.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-        new PIDConstants(0.8, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+        new PIDConstants(7.3, 0.001, 0.01), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+        new PIDConstants(1.8, 0, 0.004), // PID constants to correct for rotation error (used to create the rotation controller)
         RobotContainer.s_Swerve::setModuleStates, // Module states consumer used to output to the drive subsystem
         eventMap,
         true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
@@ -71,6 +78,15 @@ public final class Autos {
             new PathConstraints(4, 3)));
     }
 
+    public static Command twoPieceBalance(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("TwoPieceBalance",
+            new PathConstraints(4, 3)));
+    }
+
+    public static Command threePiecePlace(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePieceMidPlace",
+            new PathConstraints(4, 4)));
+    }
     
     /**
      * Blank Autonomous to be used as default dashboard option
