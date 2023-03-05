@@ -85,7 +85,7 @@ public class RobotContainer {
 
     driveController.R1()
       .onTrue(Commands.run(() -> arm.setState(stationSelector.getPos()))
-      .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3)
+      .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3 || specialsController.touchpad().getAsBoolean())
       .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
       .until(() -> Math.abs(arm.getArmAngle()) < 5)));
     
@@ -93,6 +93,7 @@ public class RobotContainer {
 
     //driveController.L1().onTrue(lineup());
 
+    /*
     driveController.touchpad().onTrue(
       new InstantCommand(() -> stationSelector.setType(Type.CUBE))
       .andThen(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE))
@@ -100,7 +101,7 @@ public class RobotContainer {
       .until(() -> arm.getIntakeEncoder() > arm.intakePlacePos()+3)
       .andThen(Commands.run(() -> arm.setState(Position.TRANSIT))
       .until(() -> Math.abs(arm.getArmAngle()) < 5)))));
-
+*/
     specialsController.touchpad().onTrue(new InstantCommand(() -> arm.setState(Position.TRANSIT)));
 
     specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));

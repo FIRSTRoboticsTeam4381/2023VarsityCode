@@ -284,6 +284,9 @@ public class IntakeArm extends SubsystemBase{
                     if(RobotContainer.stationSelector.getType() == Type.CUBE){
                         intake.set(-0.05);
                         intakeHoldPos = intakeEncoder.getPosition();
+                    }else if(secretAdjust.touchpad().getAsBoolean()){
+                        intake.set(1);
+                        intakeHoldPos = intakeEncoder.getPosition()+0.01;
                     }else{
                         intakeHoldPID.setReference(intakeHoldPos, ControlType.kPosition);
                     }
