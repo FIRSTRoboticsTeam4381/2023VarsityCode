@@ -18,8 +18,6 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Balance;
-import frc.robot.subsystems.IntakeArm.Position;
-import frc.robot.subsystems.IntakeArm.Type;
 
 public final class Autos {
 
@@ -29,7 +27,9 @@ public final class Autos {
     private static final Map<String, Command> eventMap = new HashMap<>(Map.ofEntries(
         Map.entry("lime", new InstantCommand(() -> NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3))),
         Map.entry("stop", new InstantCommand(() -> RobotContainer.s_Swerve.drive(new Translation2d(0,0), 0, true, true))),
-        Map.entry("balance", new Balance(RobotContainer.s_Swerve)),
+        Map.entry("balance", new Balance(RobotContainer.s_Swerve))
+
+        /*
         Map.entry("BackwardsCube", new InstantCommand(() -> RobotContainer.arm.setState(Position.AUTOCUBE))),
         Map.entry("Transit", new InstantCommand(() -> RobotContainer.arm.setState(Position.TRANSIT))),
         Map.entry("Cone", new InstantCommand(() -> RobotContainer.arm.setState(Position.UPCONE))),
@@ -52,6 +52,7 @@ public final class Autos {
                                     .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
                                     .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
                                     .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5)))))
+        */
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(

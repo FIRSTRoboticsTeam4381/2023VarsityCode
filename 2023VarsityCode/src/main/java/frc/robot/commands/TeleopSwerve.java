@@ -18,7 +18,6 @@ import frc.robot.LimelightHelpers;
 import frc.robot.RobotContainer;
 import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.IntakeArm.Type;
 
 
 public class TeleopSwerve extends CommandBase {
@@ -80,7 +79,7 @@ public class TeleopSwerve extends CommandBase {
             fieldRelative = false;
         }
 
-        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?2:1);
+        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 3);
         double x = 0;
         if(controller.L1().getAsBoolean()){
             ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
@@ -98,9 +97,6 @@ public class TeleopSwerve extends CommandBase {
 
             translation = new Translation2d((Math.abs(s_Swerve.getPitch()) > 4)?yAxis:0, 0.0).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, 0, false, true);
-        }else if(!RobotContainer.arm.LOCKOUT){
-            translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, rotation, fieldRelative, openLoop);
         }else{
             s_Swerve.drive(new Translation2d(0,0), rotation*0.5, true, true);
         }
