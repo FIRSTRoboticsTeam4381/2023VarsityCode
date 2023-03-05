@@ -27,6 +27,7 @@ public class TeleopSwerve extends CommandBase {
     private boolean openLoop;
     
     private PIDController headingController = new PIDController(0.008, 0, 0);
+    private double desiredHeading;
 
     private Swerve s_Swerve;
     private CommandPS4Controller controller;
@@ -70,40 +71,13 @@ public class TeleopSwerve extends CommandBase {
         rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;
         rotation = rAxis * Constants.Swerve.maxAngularVelocity;
 
-        //Balancer
-        boolean fieldRelative = true;
-        if(controller.cross().getAsBoolean()){
-            xAxis = 0.0;
-            rotation = 0.0;
-            yAxis = -MathUtil.clamp(balancePID.calculate(s_Swerve.getRoll(), 0.0), -0.12, 0.12);
-            fieldRelative = false;
+        if(desiredHeading + rAxis*4 < 0){
+            desiredHeading = 360 + desiredHeading - rAxis*4;
         }
+        desiredHeading %= 360;
 
-        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 3);
-        double x = 0;
-        if(controller.L1().getAsBoolean()){
-            ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-            if(ll.targetingResults.targets_Retro.length > 0){
-                x = ll.targetingResults.targets_Retro[0].tx*-0.025;
-                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
-                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
-            }else if(ll.targetingResults.targets_Fiducials.length > 0){
-                x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
-                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
-                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
-            }
-        }else if(controller.povLeft().getAsBoolean()){
-            yAxis = MathUtil.clamp(balancePID.calculate(s_Swerve.getPitch(), 0.0), -0.2, 0.2);
-
-            translation = new Translation2d((Math.abs(s_Swerve.getPitch()) > 4)?yAxis:0, 0.0).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, 0, false, true);
-        }else{
-            s_Swerve.drive(new Translation2d(0,0), rotation*0.5, true, true);
-        }
-
-        SmartDashboard.putNumber("X", x);
-
-        
+        translation = new Translation2d(-yAxis, xAxis).times(Constants.Swerve.maxSpeed);
+        s_Swerve.drive(translation, steerAlign(desiredHeading, s_Swerve.getYaw().getDegrees()), false, openLoop);
     }
 
 

@@ -2,6 +2,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,7 +30,7 @@ public class Swerve extends SubsystemBase {
     public Pigeon2 gyro;
     private LimelightResults ll;
     private Field2d m_field;
-    private Field2d limefield;
+    private Field2d estimatorField;
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
@@ -50,9 +54,9 @@ public class Swerve extends SubsystemBase {
         m_field.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
         SmartDashboard.putData("Field", m_field);
 
-        limefield = new Field2d();
-        limefield.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-        SmartDashboard.putData("limeField", limefield);
+        estimatorField = new Field2d();
+        estimatorField.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+        SmartDashboard.putData("limeField", estimatorField);
     }
 
     /**
@@ -181,39 +185,25 @@ public class Swerve extends SubsystemBase {
     }
     
 
-    
-    public Pose2d autoLimePose(){
-        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        Pose2d newPose;
-        if(DriverStation.getAlliance() == Alliance.Blue){
-            newPose = new Pose2d(
-                ll.targetingResults.getBotPose2d().getX()+8.27,
-                ll.targetingResults.getBotPose2d().getY()+4.01,
-                ll.targetingResults.getBotPose2d().getRotation()
-            );
-        }else{
-            newPose = new Pose2d(
-                -ll.targetingResults.getBotPose2d().getX()+8.27,
-                ll.targetingResults.getBotPose2d().getY()+4.01,
-                ll.targetingResults.getBotPose2d().getRotation()
-            );
-        }
-        return newPose;
-    }
+    private SwerveDrivePoseEstimator m_estimator = new SwerveDrivePoseEstimator(
+        Constants.Swerve.swerveKinematics,
+        getYaw(),
+        getPositions(), 
+        new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01), 
+        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01)
+    );
 
-    public void autoReset(){
+    public void addVisionMeasurement(){
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        if(ll.targetingResults.targets_Fiducials.length > 0){
-            resetOdometry(autoLimePose());
-            zeroGyro((DriverStation.getAlliance() == Alliance.Red)
-                ?
-                ll.targetingResults.getBotPose2d_wpiRed().getRotation().getDegrees()
-                :
-                ll.targetingResults.getBotPose2d_wpiBlue().getRotation().getDegrees()
-                );
-        }
+        Pose2d pose = new Pose2d(
+            ll.targetingResults.getBotPose2d().getX()+8.27,
+            ll.targetingResults.getBotPose2d().getY()+4.01,
+            ll.targetingResults.getBotPose2d().getRotation()
+        );
+        m_estimator.addVisionMeasurement(pose, ll.targetingResults.timestamp_LIMELIGHT_publish);
     }
-
+        
     @Override
     public void periodic(){
         swerveOdometry.update(getYaw(), getPositions());
@@ -232,6 +222,7 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putString("XY Coord", "(" + getPose().getX() + ", " + getPose().getY() + ")");
 
         m_field.setRobotPose(getPose());
-        limefield.setRobotPose(autoLimePose());
+        m_estimator.update(getYaw(), getPositions());
+        estimatorField.setRobotPose(m_estimator.getEstimatedPosition());
     }
 }

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.Autos;
+import frc.robot.commands.ArmTrapezoid;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.Swerve;
@@ -71,6 +72,11 @@ public class RobotContainer {
     zeroSwerve
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
       .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));     
+
+    driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
+
+    driveController.triangle().onTrue(new ArmTrapezoid(45, arm));
+    driveController.circle().onTrue(new ArmTrapezoid(0, arm));
   }
 
   /**

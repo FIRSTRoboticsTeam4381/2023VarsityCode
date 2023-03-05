@@ -45,6 +45,9 @@ public class IntakeArm extends SubsystemBase{
     private RelativeEncoder intakeEncoder;
     private SparkMaxPIDController intakeHoldPID;
 
+    private double wristPos = 0;
+    private double anglePos = 0;
+    private double elevatePos = 0;
 
     private CommandPS4Controller testingPs4Controller = new CommandPS4Controller(1);
 
@@ -112,18 +115,18 @@ public class IntakeArm extends SubsystemBase{
         leds = new CANifier(49);
     }
 
-    
     public double getArmAngle(){
-        return armTilt1Encoder.getPosition();
+        return armTilt1Encoder.getPosition(); //*armConversionfactor gear ratios and stuff
     }
 
-    public double getIntakeEncoder(){
-        return intakeEncoder.getPosition();
+    public double getArmVelocity(){
+        return armTilt1Encoder.getVelocity(); //*arm velocity conversion
     }
-    public double getIntakeVelocity(){
-        return intakeEncoder.getVelocity();
+
+    public void setArmAngle(double angle){
+        armTiltPID.setReference(angle// divided by armConversionFactor
+        , ControlType.kPosition);
     }
-    
 
 
 
