@@ -35,8 +35,8 @@ public class Robot extends TimedRobot {
    
     CameraServer.startAutomaticCapture();
 
-    DataLogManager.start();
-    DriverStation.startDataLog(DataLogManager.getLog());
+    ///DataLogManager.start();
+    //DriverStation.startDataLog(DataLogManager.getLog());
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.

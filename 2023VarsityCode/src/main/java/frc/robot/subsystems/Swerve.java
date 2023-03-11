@@ -31,6 +31,7 @@ public class Swerve extends SubsystemBase {
     private LimelightResults ll;
     private Field2d m_field;
     private Field2d estimatorField;
+    private SwerveDrivePoseEstimator m_estimator;
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
@@ -53,6 +54,15 @@ public class Swerve extends SubsystemBase {
         m_field = new Field2d();
         m_field.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
         SmartDashboard.putData("Field", m_field);
+
+        m_estimator = new SwerveDrivePoseEstimator(
+            Constants.Swerve.swerveKinematics,
+            getYaw(),
+            getPositions(), 
+            new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01), 
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01)
+        );
 
         estimatorField = new Field2d();
         estimatorField.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
@@ -184,15 +194,6 @@ public class Swerve extends SubsystemBase {
         return gyro.getPitch();
     }
     
-
-    private SwerveDrivePoseEstimator m_estimator = new SwerveDrivePoseEstimator(
-        Constants.Swerve.swerveKinematics,
-        getYaw(),
-        getPositions(), 
-        new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01), 
-        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01)
-    );
 
     public void addVisionMeasurement(){
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);

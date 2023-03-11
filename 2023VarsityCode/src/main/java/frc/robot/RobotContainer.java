@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -13,11 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.Autos;
-import frc.robot.commands.ArmTrapezoid;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.Swerve;
@@ -73,10 +74,17 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
       .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));     
 
-    driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
+    //driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
 
-    driveController.triangle().onTrue(new ArmTrapezoid(45, arm));
-    driveController.circle().onTrue(new ArmTrapezoid(0, arm));
+    
+    driveController.triangle().onTrue(new InstantCommand(() -> arm.setArmAngle(60)));
+    driveController.circle().onTrue(new InstantCommand(() -> arm.setArmAngle(0)));
+    driveController.cross().onTrue(new InstantCommand(() -> arm.setArmAngle(-60)));
+
+    driveController.povUp().onTrue(new InstantCommand(() -> arm.setElevator(-32)));
+    driveController.povLeft().onTrue(new InstantCommand(() -> arm.setElevator(0)));
+    driveController.povDown().onTrue(new InstantCommand(() -> arm.setElevator(-15)));
+    
   }
 
   /**
