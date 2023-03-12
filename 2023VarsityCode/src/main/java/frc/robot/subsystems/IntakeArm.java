@@ -17,6 +17,7 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -105,7 +106,7 @@ public class IntakeArm extends SubsystemBase{
         armExtendPID.setI(0);
         armExtendPID.setD(0.0004);
         armExtendPID.setFF(0.00017);
-        armExtendPID.setOutputRange(-0.75, 0.4);
+        armExtendPID.setOutputRange(-0.75, 0.75);
         armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
         armExtend.setIdleMode(IdleMode.kBrake);
 
@@ -115,7 +116,7 @@ public class IntakeArm extends SubsystemBase{
         wristTilt.configPeakOutputReverse(-0.6);
         
         wristAbsolute = intake.getAbsoluteEncoder(Type.kDutyCycle);
-        wristPID = new PIDController(0.1, 0, 0);
+        wristPID = new PIDController(3, 0, 0);
         
         intakeEncoder = intake.getEncoder();
         intakeEncoder.setPosition(0);
@@ -181,6 +182,7 @@ public class IntakeArm extends SubsystemBase{
     public void periodic(){
         SmartDashboard.putNumber("Arm Tilt Encoder", armTilt1Encoder.getPosition());
         SmartDashboard.putNumber("Arm Tilt Degrees", armTilt1Encoder.getPosition()*(0.25/60)*360);
+        SmartDashboard.putNumber("Wrist Tilt Degrees", (wristAbsolute.getPosition()-0.5)*360);
         SmartDashboard.putNumber("Arm Absolute", armPivotEncoder.getPosition());
         SmartDashboard.putNumber("Arm Extend Encoder", armExtensionEncoder.getPosition());
         SmartDashboard.putNumber("Wrist Absolute", wristAbsolute.getPosition());
@@ -198,7 +200,7 @@ public class IntakeArm extends SubsystemBase{
         armTiltPID.setReference(m_ArmSetPoint.position, ControlType.kPosition);
 
         TrapezoidProfile elevateProfile = new TrapezoidProfile(
-            new Constraints(1000, 100),//Little more accel, higher power/velocity
+            new Constraints(2000, 150),//Little more accel, higher power/velocity
             new State(elevatePos, 0),
             m_ElevatorSetPoint
         );
@@ -206,16 +208,17 @@ public class IntakeArm extends SubsystemBase{
         armExtendPID.setReference(m_ElevatorSetPoint.position, ControlType.kPosition);
 
 
-        /* Untested, need to figure out incorporating feed forward
         TrapezoidProfile wristProfile = new TrapezoidProfile(
-            new Constraints(10, 1),
+            new Constraints(20, 4),
             new State(wristPos, 0),
             m_WristSetPoint
         );
         m_WristSetPoint = wristProfile.calculate(0.02);
-        wristTilt.set(-0.0625*Math.sin(armTilt1Encoder.getPosition()*(0.25/60)*2*Math.PI));
-        //FF 0.0625
-        */
+        wristPID.setSetpoint(m_WristSetPoint.position);
+        wristTilt.set(MathUtil.clamp(wristPID.calculate(wristAbsolute.getPosition()), -0.75, 0.75)-0.0625*Math.sin((armTilt1Encoder.getPosition()*(0.25/60)*2*Math.PI) + (wristAbsolute.getPosition()-0.5)*2*Math.PI));
+        //FF -0.0625*Math.sin(armTilt1Encoder.getPosition()*(0.25/60)*2*Math.PI)
+        //PID MathUtil.clamp(wristPID.calculate(wristAbsolute.getPosition()), -0.5, 0.5)
+        
 
         intake.set(intakeSet);
     }

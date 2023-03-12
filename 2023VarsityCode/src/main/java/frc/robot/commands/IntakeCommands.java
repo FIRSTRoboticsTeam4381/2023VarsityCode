@@ -13,9 +13,9 @@ public class IntakeCommands {
 
     public FunctionalCommand armToAngle(double angle){
         return new FunctionalCommand(
-            null, //Init
+            () -> Commands.none(), //Init
             () -> arm.setArmAngle(angle), //Execute
-            null, //OnEnd
+            interrupted -> Commands.none(), //OnEnd
             () -> Math.abs(arm.getArmAngle() - angle) < 2, //IsFinished
             arm //Requirement
         );
@@ -23,9 +23,9 @@ public class IntakeCommands {
 
     public FunctionalCommand elevatorToHeight(double height){
         return new FunctionalCommand(
-            null, //Init
+            () -> Commands.none(), //Init
             () -> arm.setElevator(height), //Execute
-            null, //OnEnd
+            interrupted -> Commands.none(), //OnEnd
             () -> Math.abs(arm.getElevateHeight() - height) < 2, //IsFinished
             arm //Requirement
         );
@@ -33,9 +33,9 @@ public class IntakeCommands {
 
     public FunctionalCommand wristToPosition(double angle){
         return new FunctionalCommand(
-            null, //Init
+            () -> Commands.none(), //Init
             () -> arm.setWristAngle(angle), //Execute
-            null, //OnEnd
+            interrupted -> Commands.none(), //OnEnd
             () -> Math.abs(arm.getWristPos() - angle) < 2, //IsFinished
             arm //Requirement
         );
@@ -43,7 +43,7 @@ public class IntakeCommands {
 
     public FunctionalCommand placeIntake(){
         return new FunctionalCommand(
-            null, 
+            () -> Commands.none(), 
             () -> arm.setIntakeSpeed(1), 
             interrupted -> arm.setIntakeSpeed(0), 
             () -> arm.getIntakeVelocity() > 3000, 

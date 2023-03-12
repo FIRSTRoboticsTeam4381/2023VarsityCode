@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.Autos;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.Swerve;
@@ -39,6 +40,7 @@ public class RobotContainer {
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
   public static final IntakeArm arm = new IntakeArm();
+  public static final IntakeCommands armCommand = new IntakeCommands(arm);
 
   /* Auto Chooser */
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
@@ -77,13 +79,15 @@ public class RobotContainer {
     //driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
 
     
-    driveController.triangle().onTrue(new InstantCommand(() -> arm.setArmAngle(60)));
-    driveController.circle().onTrue(new InstantCommand(() -> arm.setArmAngle(0)));
-    driveController.cross().onTrue(new InstantCommand(() -> arm.setArmAngle(-60)));
+    driveController.triangle().onTrue(armCommand.armToAngle(60));
+    driveController.circle().onTrue(armCommand.armToAngle(0));
+    driveController.cross().onTrue(armCommand.armToAngle(-60));
 
-    driveController.povUp().onTrue(new InstantCommand(() -> arm.setElevator(-32)));
-    driveController.povLeft().onTrue(new InstantCommand(() -> arm.setElevator(0)));
-    driveController.povDown().onTrue(new InstantCommand(() -> arm.setElevator(-15)));
+    driveController.povUp().onTrue(armCommand.wristToPosition(0.25));
+    driveController.povRight().onTrue(armCommand.wristToPosition(0.5));
+    
+    driveController.povLeft().onTrue(armCommand.elevatorToHeight(0));
+    driveController.povDown().onTrue(armCommand.elevatorToHeight(-15));
     
   }
 

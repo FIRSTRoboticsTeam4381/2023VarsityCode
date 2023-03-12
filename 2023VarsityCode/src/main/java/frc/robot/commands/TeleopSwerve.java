@@ -76,8 +76,8 @@ public class TeleopSwerve extends CommandBase {
         }
         desiredHeading %= 360;
 
-        translation = new Translation2d(-yAxis, xAxis).times(Constants.Swerve.maxSpeed);
-        s_Swerve.drive(translation, steerAlign(desiredHeading, s_Swerve.getYaw().getDegrees()), false, openLoop);
+        translation = new Translation2d(-yAxis, -xAxis).times(Constants.Swerve.maxSpeed);
+        s_Swerve.drive(translation, -rotation, true, openLoop);
     }
 
 
