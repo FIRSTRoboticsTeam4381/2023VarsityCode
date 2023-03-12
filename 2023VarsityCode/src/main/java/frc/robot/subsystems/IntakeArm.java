@@ -60,6 +60,7 @@ public class IntakeArm extends SubsystemBase{
     private double wristPos = 0.5;
     private double anglePos = 0;
     private double elevatePos = 0;
+    private double intakeSet = 0;
 
     private double wristOffset = 0;
 
@@ -141,6 +142,18 @@ public class IntakeArm extends SubsystemBase{
         return armExtensionEncoder.getVelocity();
     }
 
+    public double getWristPos(){
+        return wristAbsolute.getPosition();
+    }
+
+    public double getWristVelocity(){
+        return wristAbsolute.getVelocity();
+    }
+
+    public double getIntakeVelocity(){
+        return intakeEncoder.getVelocity();
+    }
+
     public void setArmAngle(double angle){
         anglePos = angle;
         //armTiltPID.setReference(angle, ControlType.kPosition);
@@ -153,6 +166,10 @@ public class IntakeArm extends SubsystemBase{
     public void setWristAngle(double angle){
         wristPos = angle;
         wristPID.setSetpoint(angle);
+    }
+
+    public void setIntakeSpeed(double speed){
+        intakeSet = speed;
     }
 
     private TrapezoidProfile.State m_ArmSetPoint = new TrapezoidProfile.State();
@@ -199,5 +216,7 @@ public class IntakeArm extends SubsystemBase{
         wristTilt.set(-0.0625*Math.sin(armTilt1Encoder.getPosition()*(0.25/60)*2*Math.PI));
         //FF 0.0625
         */
+
+        intake.set(intakeSet);
     }
 }
