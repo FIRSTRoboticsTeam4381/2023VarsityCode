@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.RobotContainer;
+import frc.robot.ArmPositions.Type;
 import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.subsystems.Swerve;
 
@@ -27,13 +28,9 @@ public class TeleopSwerve extends CommandBase {
     private boolean openLoop;
     
     private PIDController headingController = new PIDController(0.008, 0, 0);
-    private double desiredHeading;
 
     private Swerve s_Swerve;
     private CommandPS4Controller controller;
-
-    private double kP = 0.01, kI = 0.0, kD = 0;
-    private PIDController balancePID = new PIDController(kP, kI, kD);
 
     /*
     private final int limit = 5;
@@ -56,7 +53,7 @@ public class TeleopSwerve extends CommandBase {
         this.controller = controller;
         this.openLoop = openLoop;
         
-        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);    
+        //ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);    
     }
 
     @Override
@@ -71,13 +68,25 @@ public class TeleopSwerve extends CommandBase {
         rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;
         rotation = rAxis * Constants.Swerve.maxAngularVelocity;
 
-        if(desiredHeading + rAxis*4 < 0){
-            desiredHeading = 360 + desiredHeading - rAxis*4;
-        }
-        desiredHeading %= 360;
-
-        translation = new Translation2d(-yAxis, -xAxis).times(Constants.Swerve.maxSpeed);
-        s_Swerve.drive(translation, -rotation, true, openLoop);
+        /*
+        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?2:1);
+        double x = 0;
+        if(controller.L1().getAsBoolean()){
+            ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
+            if(ll.targetingResults.targets_Retro.length > 0){
+                x = ll.targetingResults.targets_Retro[0].tx*-0.025;
+                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+            }else if(ll.targetingResults.targets_Fiducials.length > 0){
+                x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
+                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+            }
+        }else{*/
+            translation = new Translation2d(-yAxis, -xAxis).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, -rotation, true, openLoop);
+        //}
+        
     }
 
 

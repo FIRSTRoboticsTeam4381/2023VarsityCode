@@ -12,11 +12,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.ArmPositions;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.ArmPositions.Position;
 import frc.robot.commands.Balance;
 
 public final class Autos {
@@ -27,32 +30,13 @@ public final class Autos {
     private static final Map<String, Command> eventMap = new HashMap<>(Map.ofEntries(
         Map.entry("lime", new InstantCommand(() -> NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3))),
         Map.entry("stop", new InstantCommand(() -> RobotContainer.s_Swerve.drive(new Translation2d(0,0), 0, true, true))),
-        Map.entry("balance", new Balance(RobotContainer.s_Swerve))
-
-        /*
-        Map.entry("BackwardsCube", new InstantCommand(() -> RobotContainer.arm.setState(Position.AUTOCUBE))),
-        Map.entry("Transit", new InstantCommand(() -> RobotContainer.arm.setState(Position.TRANSIT))),
-        Map.entry("Cone", new InstantCommand(() -> RobotContainer.arm.setState(Position.UPCONE))),
-        Map.entry("SetCube", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))),
-        Map.entry("HighPlace", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CONE))
-                                    .andThen(new InstantCommand(() -> RobotContainer.stationSelector.setPos(Position.HIGHPLACE))
-                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(RobotContainer.stationSelector.getPos()))
-                                    .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
-                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
-                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5))))),
-        Map.entry("CubePlace", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))
-                                    .andThen(new InstantCommand(() -> RobotContainer.stationSelector.setPos(Position.HIGHPLACE))
-                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(RobotContainer.stationSelector.getPos()))
-                                    .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
-                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
-                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5))))),
-        Map.entry("MidPlace", new InstantCommand(() -> RobotContainer.stationSelector.setType(Type.CUBE))
-                                    .andThen(new InstantCommand(() -> RobotContainer.stationSelector.setPos(Position.MIDPLACE))
-                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(RobotContainer.stationSelector.getPos()))
-                                    .until(() -> RobotContainer.arm.getIntakeEncoder() > RobotContainer.arm.intakePlacePos()+3)
-                                    .andThen(Commands.run(() -> RobotContainer.arm.setState(Position.TRANSIT))
-                                    .until(() -> Math.abs(RobotContainer.arm.getArmAngle()) < 5)))))
-        */
+        Map.entry("balance", new Balance(RobotContainer.s_Swerve)),
+        Map.entry("BackwardsCube", RobotContainer.armCommand.intakePosition(ArmPositions.getArmState(Position.AUTOCUBE))),
+        Map.entry("HighPlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.HIGHPLACE))),
+        Map.entry("CubePlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.HIGHPLACE))),
+        Map.entry("MidPlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.HIGHPLACE))),
+        Map.entry("Transit", RobotContainer.armCommand.autoReturnToHome(-0.1)),
+        Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE)))
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
@@ -67,12 +51,6 @@ public final class Autos {
         RobotContainer.s_Swerve // The drive subsystem. Used to properly set the requirements of path following commands
     );
     
-    
-
-    public static Command threePiece(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePiece",
-            new PathConstraints(4, 3)));
-    }
 
     public static Command coneBalance(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConePark",
@@ -86,6 +64,11 @@ public final class Autos {
 
     public static Command threePiecePlace(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePieceMidPlace",
+            new PathConstraints(4, 4)));
+    }
+
+    public static Command threePieceHIGH(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePieceHighPlace",
             new PathConstraints(4, 4)));
     }
     

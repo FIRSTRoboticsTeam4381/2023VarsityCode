@@ -114,4 +114,40 @@ public class Conversions {
         return ticks;
     }
 
+    /**
+     * Used with Arm Angle Motors
+     * @param degrees Degrees we want arm to move
+     * @return Encoder ticks for arm to move
+     */
+    public static double degreesToArmEncoder(double degrees){
+        return (degrees/360)*(60/0.25);
+    }
+
+    /**
+     * Used with Arm Angle Motors
+     * @param armEncoder Encoder ticks from angle motors
+     * @return Degrees of arm
+     */
+    public static double armEncoderToDegrees(double armEncoder){
+        return armEncoder*(0.25/60)*360;
+    }
+
+    /**
+     * Used with wrist motor
+     * @param degrees Degrees we want the wrist to turn
+     * @return Wrist encoder ticks
+     */
+    public static double degreesToWristEncoder(double degrees){
+        return (degrees/360)+0.5;
+    }
+
+    /**
+     * Used with wrist motor
+     * @param wristEncoder Encoder ticks from wrist
+     * @return Degrees of wrist
+     */
+    public static double wristEncoderToDegrees(double wristEncoder){
+        return (wristEncoder-0.5)*360;
+    }
+
 }

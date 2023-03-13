@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.SpecialAction;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -12,17 +14,27 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.ArmPositions.Position;
+import frc.robot.ArmPositions.Type;
 import frc.robot.autos.Autos;
+import frc.robot.commands.ArmDefault;
+import frc.robot.commands.ElevatorDefault;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.TeleopSwerve;
-import frc.robot.subsystems.IntakeArm;
+import frc.robot.commands.WristDefault;
+import frc.robot.subsystems.ArmAngleSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDS;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.WristSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,14 +45,20 @@ import frc.robot.subsystems.Swerve;
 public class RobotContainer {
   /* Controllers */
   private final CommandPS4Controller driveController = new CommandPS4Controller(0);
+  private final CommandPS4Controller specialsController = new CommandPS4Controller(1);
 
   /* Driver Buttons */
   private final Trigger zeroSwerve = driveController.options();
   
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
-  public static final IntakeArm arm = new IntakeArm();
-  public static final IntakeCommands armCommand = new IntakeCommands(arm);
+  public static final ArmAngleSubsystem arm = new ArmAngleSubsystem();
+  public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
+  public static final WristSubsystem wrist = new WristSubsystem();
+  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist);
+  public static final LEDS leds = new LEDS();
+
+  public static final StationSelector stationSelector = new StationSelector(Position.HIGHPLACE, Type.CONE);
 
   /* Auto Chooser */
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
@@ -49,16 +67,19 @@ public class RobotContainer {
   public RobotContainer() {
 
     s_Swerve.setDefaultCommand(new TeleopSwerve(s_Swerve, driveController, true));
+    arm.setDefaultCommand(new ArmDefault(arm));
+    elevator.setDefaultCommand(new ElevatorDefault(elevator));
+    wrist.setDefaultCommand(new WristDefault(wrist));
 
     // Configure the button bindings
     configureButtonBindings();
     
     //Add autonoumous options to chooser
     m_AutoChooser.setDefaultOption("None", Autos.none());
-    m_AutoChooser.addOption("Three Piece Grab", Autos.threePiece());
     m_AutoChooser.addOption("ConePark", Autos.coneBalance());
     m_AutoChooser.addOption("Three Piece Place", Autos.threePiecePlace());
     m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
+    m_AutoChooser.addOption("Three Piece HIGH", Autos.threePieceHIGH());
     SmartDashboard.putData(m_AutoChooser);
 
   }
@@ -78,16 +99,94 @@ public class RobotContainer {
 
     //driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
 
-    
-    driveController.triangle().onTrue(armCommand.armToAngle(60));
-    driveController.circle().onTrue(armCommand.armToAngle(0));
-    driveController.cross().onTrue(armCommand.armToAngle(-60));
+    /* Ash binding
+    driveController.R1().onTrue(new InstantCommand(() -> CommandScheduler.getInstance().schedule(armCommand.placeElevator(ArmPositions.getArmState(stationSelector.getPos())))));
+    */
 
-    driveController.povUp().onTrue(armCommand.wristToPosition(0.25));
-    driveController.povRight().onTrue(armCommand.wristToPosition(0.5));
+    /* Ryan Bindings
+     */
+    driveController.cross().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.placeElevator(ArmPositions.getArmState(stationSelector.getPos())))));
+
+    driveController.R1().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.prePlace(ArmPositions.getArmState((stationSelector.getType() == Type.CONE)?Position.PREPLACECONE:Position.PREPLACECUBE)))));
+
+    driveController.square()
+      .onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE))
+        .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 100 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(-0.1)))));
     
-    driveController.povLeft().onTrue(armCommand.elevatorToHeight(0));
-    driveController.povDown().onTrue(armCommand.elevatorToHeight(-15));
+    driveController.circle()
+      .onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE))
+      .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCUBE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 100 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(-0.1)))));
+
+    
+    driveController.touchpad().onTrue(armCommand.returnToHome(0));
+
+    specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));
+    specialsController.L1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE)));
+
+    specialsController.povUp().onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HIGHPLACE)));
+    specialsController.povDown().onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HYBRID)));
+    specialsController.povLeft()
+      .or(specialsController.povRight())
+      .onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
+
+
+    specialsController.R1()
+      .and(specialsController.triangle())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANSLIDE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(-0.1))));
+
+    specialsController.R1()
+      .and(specialsController.circle())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.AUTOCUBE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(-0.1))));
+
+    specialsController.R1()
+      .and(specialsController.square())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCUBE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(-0.1))));
+
+    specialsController.R1()
+      .and(specialsController.cross())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.CUBE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(-0.1))));
+
+    specialsController.L1()
+      .and(specialsController.triangle())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANSLIDE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(0))));
+
+    specialsController.L1()
+      .and(specialsController.circle())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.TIPCONE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(0))));
+
+    specialsController.L1()
+      .and(specialsController.square())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(0))));
+
+    specialsController.L1()
+      .and(specialsController.cross())
+      .onTrue(armCommand.uprightConeIntake(ArmPositions.getArmState(ArmPositions.Position.UPCONE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(0
+      ))));
+
     
   }
 

@@ -9,6 +9,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 /**
@@ -32,8 +33,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     ctreConfigs = new CTREConfigs();
-   
-    CameraServer.startAutomaticCapture();
 
     ///DataLogManager.start();
     //DriverStation.startDataLog(DataLogManager.getLog());
@@ -94,7 +93,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    SmartDashboard.putString("POSITION", RobotContainer.stationSelector.getPos().toString());
+    SmartDashboard.putString("TYPE", RobotContainer.stationSelector.getType().toString());
+  }
   
 
   @Override

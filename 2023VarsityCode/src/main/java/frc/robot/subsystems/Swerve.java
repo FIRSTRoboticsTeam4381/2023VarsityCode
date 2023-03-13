@@ -35,7 +35,7 @@ public class Swerve extends SubsystemBase {
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
-        gyro.setYaw(0);
+        gyro.setYaw(-180);
         gyro.configMountPoseRoll(-1.35);
         zeroGyro(0);
         
@@ -49,12 +49,13 @@ public class Swerve extends SubsystemBase {
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getPositions());
         
 
-        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
+        //ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
 
         m_field = new Field2d();
         m_field.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
         SmartDashboard.putData("Field", m_field);
 
+        /*
         m_estimator = new SwerveDrivePoseEstimator(
             Constants.Swerve.swerveKinematics,
             getYaw(),
@@ -67,6 +68,7 @@ public class Swerve extends SubsystemBase {
         estimatorField = new Field2d();
         estimatorField.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
         SmartDashboard.putData("limeField", estimatorField);
+        */
     }
 
     /**
@@ -211,6 +213,7 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putNumber("Gyro Angle", getYaw().getDegrees());
         SmartDashboard.putNumber("Gyro Roll", getRoll());
 
+        
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
@@ -219,11 +222,12 @@ public class Swerve extends SubsystemBase {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle Temp", mod.getTemp(2));
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Setpoint", mod.getDesired());
         }
+        
 
         SmartDashboard.putString("XY Coord", "(" + getPose().getX() + ", " + getPose().getY() + ")");
 
         m_field.setRobotPose(getPose());
-        m_estimator.update(getYaw(), getPositions());
-        estimatorField.setRobotPose(m_estimator.getEstimatedPosition());
+        //m_estimator.update(getYaw(), getPositions());
+        //estimatorField.setRobotPose(m_estimator.getEstimatedPosition());
     }
 }
