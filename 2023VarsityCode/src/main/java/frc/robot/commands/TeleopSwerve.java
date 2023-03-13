@@ -83,9 +83,13 @@ public class TeleopSwerve extends CommandBase {
                 s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
             }
         }else{*/
+        if(controller.L1().getAsBoolean()){
+            translation = new Translation2d(-yAxis, -xAxis).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, -steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
+        }else{
             translation = new Translation2d(-yAxis, -xAxis).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, -rotation, true, openLoop);
-        //}
+        }
         
     }
 

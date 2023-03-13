@@ -105,6 +105,8 @@ public class RobotContainer {
 
     /* Ryan Bindings
      */
+    driveController.axisGreaterThan(4, 0.5).onTrue(new InstantCommand(() -> arm.resetArm()));
+    
     driveController.cross().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         armCommand.placeElevator(ArmPositions.getArmState(stationSelector.getPos())))));
@@ -186,7 +188,6 @@ public class RobotContainer {
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
       .andThen(armCommand.returnToHome(0
       ))));
-
     
   }
 

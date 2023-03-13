@@ -44,7 +44,7 @@ public class IntakeCommands {
             () -> Commands.print("START WRIST"), //Init
             () -> wrist.setWristAngle(Conversions.degreesToWristEncoder(angle)), //Execute
             interrupted -> Commands.print("END WRIST"), //OnEnd
-            () -> Math.abs(Conversions.wristEncoderToDegrees(wrist.getWristPos()) - angle) < 5, //IsFinished
+            () -> Math.abs(Conversions.wristEncoderToDegrees(wrist.getWristPos()) - angle) < 8, //IsFinished
             wrist //Requirement
         );
     }
@@ -72,11 +72,14 @@ public class IntakeCommands {
                 wristToPosition(placeState[2])
             ),
             placeIntake(),
-            new ParallelCommandGroup(
-                wristToPosition(0),
+            new ParallelRaceGroup(
+                wristToPosition(-20),
                 elevatorToHeight(0)
             ),
-            armToAngle(0)
+            new ParallelCommandGroup(
+                armToAngle(0),
+                wristToPosition(0)
+            )
             
         );
     }

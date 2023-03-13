@@ -46,7 +46,7 @@ public class ArmAngleSubsystem extends SubsystemBase{
         armTilt2.set(0);
 
         armTiltPID = armTilt1.getPIDController();
-        armTiltPID.setP(0.1);
+        armTiltPID.setP(0.11);
         armTiltPID.setI(0);
         armTiltPID.setD(0.0015);
         armTiltPID.setFF(0.0002);
@@ -67,6 +67,10 @@ public class ArmAngleSubsystem extends SubsystemBase{
 
     public double getArmVelocity(){
         return armTilt1Encoder.getVelocity(); //*arm velocity conversion
+    }
+
+    public void resetArm(){
+        armTilt1Encoder.setPosition((armPivotEncoder.getPosition()-0.5)*245.45);
     }
 
     @Override

@@ -80,8 +80,6 @@ public class WristSubsystem extends SubsystemBase{
     public void periodic(){
         SmartDashboard.putNumber("Wrist Angle Setpoint", Conversions.wristEncoderToDegrees(wristPos));
         SmartDashboard.putNumber("Wrist Absolute", Conversions.wristEncoderToDegrees(wristAbsolute.getPosition()));
-
-
         TrapezoidProfile wristProfile = new TrapezoidProfile(
             new Constraints(40, 20),
             new State(wristPos, 0),
