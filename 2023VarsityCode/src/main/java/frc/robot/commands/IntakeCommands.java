@@ -68,18 +68,15 @@ public class IntakeCommands {
         return new SequentialCommandGroup(
             armToAngle(placeState[0]),
             new ParallelCommandGroup(
-                elevatorToHeight(placeState[1]),
-                wristToPosition(placeState[2])
+                new WaitCommand(placeState[3]).andThen(wristToPosition(placeState[2])),
+                elevatorToHeight(placeState[1])
             ),
             placeIntake(),
-            new ParallelRaceGroup(
-                wristToPosition(-20),
+            new ParallelCommandGroup(
+                wristToPosition(0),
                 elevatorToHeight(0)
             ),
-            new ParallelCommandGroup(
-                armToAngle(0),
-                wristToPosition(0)
-            )
+            armToAngle(0)
             
         );
     }
