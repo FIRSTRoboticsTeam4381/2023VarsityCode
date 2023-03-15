@@ -34,7 +34,7 @@ public class IntakeCommands {
             () -> Commands.print("START ELEVATOR"), //Init
             () -> elevator.setElevator(height), //Execute
             interrupted -> Commands.print("END ELEVATOR"), //OnEnd
-            () -> Math.abs(elevator.getElevateHeight() - height) < 2, //IsFinished
+            () -> Math.abs(elevator.getElevateHeight() - height) < 3, //IsFinished
             elevator //Requirement
         );
     }
@@ -49,12 +49,12 @@ public class IntakeCommands {
         );
     }
 
-    public FunctionalCommand placeIntake(){
+    public FunctionalCommand placeIntake(double speed){
         return new FunctionalCommand(
             () -> Commands.none(), 
-            () -> wrist.setIntakeSpeed(1), 
+            () -> wrist.setIntakeSpeed(speed), 
             interrupted -> wrist.setIntakeSpeed(0), 
-            () -> wrist.getIntakeVelocity() > 3000, 
+            () -> wrist.getIntakeVelocity() > speed*3000, 
             wrist
         );
     }
@@ -71,7 +71,7 @@ public class IntakeCommands {
                 new WaitCommand(placeState[3]).andThen(wristToPosition(placeState[2])),
                 elevatorToHeight(placeState[1])
             ),
-            placeIntake(),
+            placeIntake(placeState[4]),
             new ParallelCommandGroup(
                 wristToPosition(0),
                 elevatorToHeight(0)
@@ -89,7 +89,7 @@ public class IntakeCommands {
                 elevatorToHeight(state[1]),
                 wristToPosition(state[2])
             ),
-            placeIntake(),
+            placeIntake(state[4]),
             wristToPosition(0),
             elevatorToHeight(0),
             armToAngle(0)
@@ -110,13 +110,16 @@ public class IntakeCommands {
      * @param state double array state [angle for arm, elevator distance, wrist angle]
      * @return Sequential command
      */
-    public ParallelCommandGroup intakePosition(double[] state){
-        return new ParallelCommandGroup(
-            armToAngle(state[0]),
-            elevatorToHeight(state[1]),
-            wristToPosition(state[2]),
-            new InstantCommand(() -> wrist.setIntakeSpeed(-1)),
-            new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) > 300)
+    public SequentialCommandGroup intakePosition(double[] state){
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                armToAngle(state[0]),
+                elevatorToHeight(state[1]),
+                wristToPosition(state[2]),
+                new InstantCommand(() -> wrist.setIntakeSpeed(-1)),
+                new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) > 300)
+            ),
+            new InstantCommand(() -> arm.resetArm())
         );
     }
 
@@ -137,12 +140,15 @@ public class IntakeCommands {
      * @param holdPower intake holding power
      * @return Sequential Command
      */
-    public ParallelCommandGroup returnToHome(double holdPower){
-        return new ParallelCommandGroup(
-            new InstantCommand(() -> wrist.setIntakeSpeed(holdPower)),
-            wristToPosition(0),
-            elevatorToHeight(0),
-            armToAngle(0)
+    public SequentialCommandGroup returnToHome(double holdPower){
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new InstantCommand(() -> wrist.setIntakeSpeed(holdPower)),
+                wristToPosition(0),
+                elevatorToHeight(0),
+                armToAngle(0)
+            ),
+            new InstantCommand(() -> arm.resetArm())
         );
     }
 
@@ -151,7 +157,7 @@ public class IntakeCommands {
             new InstantCommand(() -> wrist.setIntakeSpeed(holdPower)),
             wristToPosition(0),
             elevatorToHeight(0),
-            armToAngle(50.8)
+            armToAngle(0)
         );
     }
 

@@ -35,9 +35,9 @@ public class Swerve extends SubsystemBase {
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
-        gyro.setYaw(-180);
+        gyro.setYaw(0);
         gyro.configMountPoseRoll(-1.35);
-        zeroGyro(0);
+        zeroGyro(180);
         
         mSwerveMods = new SwerveModule[] {
             new SwerveModule(0, Constants.Swerve.Mod0.constants),
@@ -140,17 +140,10 @@ public class Swerve extends SubsystemBase {
         swerveOdometry.resetPosition(getYaw(), getPositions(), pose);
     }
 
-
     public void resetOdometry(Pose2d pose, Rotation2d yaw) {
         swerveOdometry.resetPosition(yaw, getPositions(), pose);
     }
-
-    public void autoResetOdometry(Pose2d pose, Rotation2d yaw){
-        if(ll.targetingResults.targets_Fiducials.length>0){
-            swerveOdometry.resetPosition(yaw, getPositions(), pose);
-        }
-    }
-
+    
     public SwerveModuleState[] getStates(){
         SwerveModuleState[] states = new SwerveModuleState[4];
         for(SwerveModule mod : mSwerveMods){

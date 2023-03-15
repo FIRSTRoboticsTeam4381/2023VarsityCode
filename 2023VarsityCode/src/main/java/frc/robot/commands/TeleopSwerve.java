@@ -75,16 +75,16 @@ public class TeleopSwerve extends CommandBase {
             ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
             if(ll.targetingResults.targets_Retro.length > 0){
                 x = ll.targetingResults.targets_Retro[0].tx*-0.025;
-                translation = new Translation2d(yAxis, -x).times(Constants.Swerve.maxSpeed);
-                s_Swerve.drive(translation, -steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
             }else if(ll.targetingResults.targets_Fiducials.length > 0){
                 x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
-                translation = new Translation2d(yAxis, -x).times(Constants.Swerve.maxSpeed);
-                s_Swerve.drive(translation, -steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+                translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
+                s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
             }
         }else{
-            translation = new Translation2d(-yAxis, -xAxis).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, -rotation, true, openLoop);
+            translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, rotation, true, openLoop);
         }
         
     }

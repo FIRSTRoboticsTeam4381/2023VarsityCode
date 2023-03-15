@@ -46,6 +46,7 @@ public class ArmAngleSubsystem extends SubsystemBase{
         armTilt2.set(0);
 
         armTiltPID = armTilt1.getPIDController();
+        armTiltPID.setFeedbackDevice(armTilt1Encoder);
         armTiltPID.setP(0.11);
         armTiltPID.setI(0);
         armTiltPID.setD(0.0015);
