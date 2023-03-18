@@ -20,7 +20,7 @@
           "HighPlace"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "deadline",
+        "waitBehavior": "minimum",
         "waitTime": 2.5
       }
     },
@@ -73,7 +73,7 @@
           "CubePlace"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "deadline",
+        "waitBehavior": "minimum",
         "waitTime": 2.0
       }
     },
@@ -104,12 +104,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.02397156931066,
-        "y": 4.419218069205369
+        "x": 2.069648241860586,
+        "y": 4.270768883418109
       },
       "prevControl": {
-        "x": 2.8882366804111985,
-        "y": 4.791615200786043
+        "x": 2.9339133529611248,
+        "y": 4.643166014998783
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
