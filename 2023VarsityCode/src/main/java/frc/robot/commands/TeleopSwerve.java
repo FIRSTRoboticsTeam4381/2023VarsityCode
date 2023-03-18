@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.subsystems.Swerve;
@@ -63,6 +64,7 @@ public class TeleopSwerve extends CommandBase {
         rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;
         rotation = rAxis * Constants.Swerve.maxAngularVelocity;
 
+        double speedMod = (Math.abs(RobotContainer.elevator.getElevateHeight()) > 10)?0.3:1;
         
         LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?1:0);
         double x = 0;
@@ -73,11 +75,11 @@ public class TeleopSwerve extends CommandBase {
             }else if(ll.targetingResults.targets_Fiducials.length > 0){
                 x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
             }
-            translation = new Translation2d(-yAxis, x).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+            translation = new Translation2d(-yAxis*speedMod, x*speedMod).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
         }else{
-            translation = new Translation2d(yAxis, xAxis).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, rotation, true, openLoop);
+            translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, rotation*speedMod, true, openLoop);
         }
 
         

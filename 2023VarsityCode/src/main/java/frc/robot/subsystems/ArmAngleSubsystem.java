@@ -58,7 +58,7 @@ public class ArmAngleSubsystem extends SubsystemBase{
 
         armTiltPID = armTilt1.getPIDController();
         armTiltPID.setFeedbackDevice(armPivotEncoder);
-        armTiltPID.setP(15);
+        armTiltPID.setP(13);
         armTiltPID.setI(0);
         armTiltPID.setD(1.5);
         armTiltPID.setFF(0);
@@ -106,7 +106,7 @@ public class ArmAngleSubsystem extends SubsystemBase{
         */
 
         TrapezoidProfile armProfile = new TrapezoidProfile(
-            new Constraints(6, 6),//Could use a little less accel
+            new Constraints(6, 5),//Could use a little less accel
             new State(anglePos, 0),
             m_ArmSetPoint
         );

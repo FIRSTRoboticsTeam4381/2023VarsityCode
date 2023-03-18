@@ -76,6 +76,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
     m_AutoChooser.addOption("Three Piece HIGH", Autos.threePieceHIGH());
     m_AutoChooser.addOption("CONE PARK NO OVER", Autos.coneParkNoMobility());
+    m_AutoChooser.addOption("Bump Auto", Autos.bumpPath());
     SmartDashboard.putData(m_AutoChooser);
 
   }
@@ -102,7 +103,7 @@ public class RobotContainer {
     /* Ryan Bindings
      */
     //driveController.axisGreaterThan(4, 0.5).onTrue(new InstantCommand(() -> arm.resetArm()));
-    
+    /*
     driveController.cross().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         armCommand.placeElevator(ArmPositions.getArmState(stationSelector.getPos())))));
@@ -110,7 +111,19 @@ public class RobotContainer {
     driveController.R1().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         armCommand.prePlace(ArmPositions.getArmState((stationSelector.getType() == Type.CONE)?Position.PREPLACECONE:Position.PREPLACECUBE)))));
-/*
+    */
+
+    driveController.R1().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.preplaceElevator(ArmPositions.getArmState(stationSelector.getPos()))))
+    );
+
+    driveController.cross().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.placeAndReturn(ArmPositions.getArmState(stationSelector.getPos()))))
+    );
+
+        /*
     driveController.square()
       .onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE))
         .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))

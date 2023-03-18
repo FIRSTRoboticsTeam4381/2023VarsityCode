@@ -29,11 +29,11 @@ public final class ArmPositions {
             case HUMANSLIDE://UNTESTED
                 return new double[] {-76.0,0,23.5};
             case HYBRID://UNTESTED
-                return new double[] {106,0,0, 0, 0.5};
+                return new double[] {68,0,74, 0, 0.5};
             case TIPCONE://GOOD - Broke encoder though
                 return new double[] {-98,-5.2,-68.1};
             case SHOOTMIDCUBE://UNTESTED
-                return new double[] {0,0,45, 0, 0.5};
+                return new double[] {0,0,70, 0, 0.5};
             case SHOOTHIGHCUBE://UNTESTED
                 return new double[] {55,-15.4,0, 0, 0.5};
             case PREBUMP:

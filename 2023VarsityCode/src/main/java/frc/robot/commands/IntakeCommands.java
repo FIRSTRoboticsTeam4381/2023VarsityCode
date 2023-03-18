@@ -162,4 +162,28 @@ public class IntakeCommands {
     }
 
 
+
+    //Better Placing
+    public SequentialCommandGroup preplaceElevator(double[] placeState){
+        return new SequentialCommandGroup(
+            armToAngle(placeState[0]),
+            new ParallelCommandGroup(
+                new WaitCommand(placeState[3]).andThen(wristToPosition(placeState[2])),
+                elevatorToHeight(placeState[1])
+            )    
+        );
+    }
+
+    public SequentialCommandGroup placeAndReturn(double[] placeState){
+        return new SequentialCommandGroup(
+            placeIntake(placeState[4]),
+            new ParallelCommandGroup(
+                wristToPosition(0),
+                elevatorToHeight(0)
+            ),
+            armToAngle(0)
+        );
+    }
+
+
 }
