@@ -24,7 +24,7 @@ public class IntakeCommands {
             () -> Commands.print("START ARM"), //Init
             () -> arm.setArmAngle(Conversions.degreesToArmEncoder(angle)), //Execute
             interrupted -> Commands.print("END ARM"), //OnEnd
-            () -> Math.abs(Conversions.armEncoderToDegrees(arm.getArmAngle()) - angle) < 2, //IsFinished
+            () -> Math.abs(Conversions.armEncoderToDegrees(arm.getArmAbsolute()) - angle) < 2, //IsFinished
             arm //Requirement
         );
     }
@@ -118,8 +118,8 @@ public class IntakeCommands {
                 wristToPosition(state[2]),
                 new InstantCommand(() -> wrist.setIntakeSpeed(-1)),
                 new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) > 300)
-            ),
-            new InstantCommand(() -> arm.resetArm())
+            )
+            //new InstantCommand(() -> arm.resetArm())
         );
     }
 
@@ -147,8 +147,8 @@ public class IntakeCommands {
                 wristToPosition(0),
                 elevatorToHeight(0),
                 armToAngle(0)
-            ),
-            new InstantCommand(() -> arm.resetArm())
+            )
+            //new InstantCommand(() -> arm.resetArm())
         );
     }
 

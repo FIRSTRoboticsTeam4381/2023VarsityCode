@@ -27,7 +27,7 @@ public class ArmAngleSubsystem extends SubsystemBase{
     private SparkMaxPIDController armTiltPID;
 
     private TrapezoidProfile.State m_ArmSetPoint = new TrapezoidProfile.State();
-    private double anglePos = 0;
+    private double anglePos = 0.5;
 
     
     public ArmAngleSubsystem(){
@@ -45,12 +45,23 @@ public class ArmAngleSubsystem extends SubsystemBase{
         armTilt2.setIdleMode(IdleMode.kBrake);
         armTilt2.set(0);
 
+        /*
         armTiltPID = armTilt1.getPIDController();
         armTiltPID.setFeedbackDevice(armTilt1Encoder);
-        armTiltPID.setP(0.11);
+        armTiltPID.setP(0.1);
         armTiltPID.setI(0);
         armTiltPID.setD(0.0015);
         armTiltPID.setFF(0.0002);
+        armTiltPID.setOutputRange(-1, 1);
+        armTilt1.setIdleMode(IdleMode.kBrake);
+        */
+
+        armTiltPID = armTilt1.getPIDController();
+        armTiltPID.setFeedbackDevice(armPivotEncoder);
+        armTiltPID.setP(15);
+        armTiltPID.setI(0);
+        armTiltPID.setD(1.5);
+        armTiltPID.setFF(0);
         armTiltPID.setOutputRange(-1, 1);
         armTilt1.setIdleMode(IdleMode.kBrake);
 
@@ -66,20 +77,25 @@ public class ArmAngleSubsystem extends SubsystemBase{
         return armTilt1Encoder.getPosition(); //*armConversionfactor gear ratios and stuff
     }
 
+    public double getArmAbsolute(){
+        return armPivotEncoder.getPosition();
+    }
+
     public double getArmVelocity(){
         return armTilt1Encoder.getVelocity(); //*arm velocity conversion
     }
-
+    /*
     public void resetArm(){
         armTilt1Encoder.setPosition((armPivotEncoder.getPosition()-0.5)*245.45);
-    }
+    }*/
 
     @Override
     public void periodic(){
         SmartDashboard.putNumber("Arm Tilt Encoder", Conversions.armEncoderToDegrees(armTilt1Encoder.getPosition()));
-        SmartDashboard.putNumber("Arm Absolute", armPivotEncoder.getPosition());
+        SmartDashboard.putNumber("Arm Absolute", (armPivotEncoder.getPosition()-0.5)*360);
         SmartDashboard.putNumber("Arm Angle Setpoint", Conversions.armEncoderToDegrees(anglePos));
 
+        /*
         TrapezoidProfile armProfile = new TrapezoidProfile(
             new Constraints(3000, 500),//Could use a little less accel
             new State(anglePos, 0),
@@ -87,5 +103,16 @@ public class ArmAngleSubsystem extends SubsystemBase{
         );
         m_ArmSetPoint = armProfile.calculate(0.02);
         armTiltPID.setReference(m_ArmSetPoint.position, ControlType.kPosition);
+        */
+
+        TrapezoidProfile armProfile = new TrapezoidProfile(
+            new Constraints(6, 6),//Could use a little less accel
+            new State(anglePos, 0),
+            m_ArmSetPoint
+        );
+        m_ArmSetPoint = armProfile.calculate(0.02);
+        armTiltPID.setReference(m_ArmSetPoint.position, ControlType.kPosition);
+
+
     }
 }

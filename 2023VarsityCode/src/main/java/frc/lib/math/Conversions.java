@@ -114,13 +114,32 @@ public class Conversions {
         return ticks;
     }
 
+    
+    /**
+     * Used with Arm Angle Motors
+     * @param degrees Degrees we want arm to move
+     * @return Encoder ticks for arm to move
+     *
+    public static double degreesToArmEncoder(double degrees){
+        return (degrees/360)*(60/0.25);
+    }*/
+
+    /**
+     * Used with Arm Angle Motors
+     * @param armEncoder Encoder ticks from angle motors
+     * @return Degrees of arm
+     *
+    public static double armEncoderToDegrees(double armEncoder){
+        return armEncoder*(0.25/60)*360;
+    }*/
+    
     /**
      * Used with Arm Angle Motors
      * @param degrees Degrees we want arm to move
      * @return Encoder ticks for arm to move
      */
     public static double degreesToArmEncoder(double degrees){
-        return (degrees/360)*(60/0.25);
+        return (degrees/360)+0.5;
     }
 
     /**
@@ -129,7 +148,7 @@ public class Conversions {
      * @return Degrees of arm
      */
     public static double armEncoderToDegrees(double armEncoder){
-        return armEncoder*(0.25/60)*360;
+        return (armEncoder-0.5)*360;
     }
 
     /**

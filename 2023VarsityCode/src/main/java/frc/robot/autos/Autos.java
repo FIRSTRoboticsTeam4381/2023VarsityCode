@@ -8,19 +8,16 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.ArmPositions;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.ArmPositions.Position;
 import frc.robot.commands.Balance;
+import frc.robot.ArmPositions;
+import frc.robot.ArmPositions.Position;
 
 public final class Autos {
 
@@ -36,14 +33,15 @@ public final class Autos {
         Map.entry("CubePlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.SHOOTHIGHCUBE))),
         Map.entry("MidPlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.SHOOTMIDCUBE))),
         Map.entry("Transit", RobotContainer.armCommand.autoReturnToHome(-0.1)),
-        Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE)))
+        Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE))),
+        Map.entry("PreBump", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREBUMP)))
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         RobotContainer.s_Swerve::getPose, // Pose2d supplier
         RobotContainer.s_Swerve::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.Swerve.swerveKinematics, // SwerveDriveKinematics
-        new PIDConstants(7.3, 0.002, 0.01),//Old7.3, 0.001, 0.01 // PID constants to correct for translation error (used to create the X and Y PID controllers)
+        new PIDConstants(7.3, 0.001, 0.01),//Old7.3, 0.001, 0.01 // PID constants to correct for translation error (used to create the X and Y PID controllers)
         new PIDConstants(1.8, 0, 0.004), //Old 1.8, 0, 0.004 // PID constants to correct for rotation error (used to create the rotation controller)
         RobotContainer.s_Swerve::setModuleStates, // Module states consumer used to output to the drive subsystem
         eventMap,
@@ -51,6 +49,12 @@ public final class Autos {
         RobotContainer.s_Swerve // The drive subsystem. Used to properly set the requirements of path following commands
     );
     
+    
+
+    public static Command threePiece(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePiece",
+            new PathConstraints(4, 3)));
+    }
 
     public static Command coneBalance(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConePark",
@@ -70,6 +74,16 @@ public final class Autos {
     public static Command threePieceHIGH(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePieceHighPlace",
             new PathConstraints(4, 4)));
+    }
+
+    public static Command coneParkNoMobility(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConeParkNoDrive", 
+            new PathConstraints(4, 3)));
+    }
+
+    public static Command bumpPath(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("BumpPath", 
+            new PathConstraints(4, 3)));
     }
     
     /**

@@ -4,22 +4,16 @@
 
 package frc.robot;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.SpecialAction;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ArmPositions.Position;
@@ -76,10 +70,12 @@ public class RobotContainer {
     
     //Add autonoumous options to chooser
     m_AutoChooser.setDefaultOption("None", Autos.none());
+    m_AutoChooser.addOption("Three Piece Grab", Autos.threePiece());
     m_AutoChooser.addOption("ConePark", Autos.coneBalance());
     m_AutoChooser.addOption("Three Piece Place", Autos.threePiecePlace());
     m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
     m_AutoChooser.addOption("Three Piece HIGH", Autos.threePieceHIGH());
+    m_AutoChooser.addOption("CONE PARK NO OVER", Autos.coneParkNoMobility());
     SmartDashboard.putData(m_AutoChooser);
 
   }
@@ -105,7 +101,7 @@ public class RobotContainer {
 
     /* Ryan Bindings
      */
-    driveController.axisGreaterThan(4, 0.5).onTrue(new InstantCommand(() -> arm.resetArm()));
+    //driveController.axisGreaterThan(4, 0.5).onTrue(new InstantCommand(() -> arm.resetArm()));
     
     driveController.cross().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
@@ -114,7 +110,7 @@ public class RobotContainer {
     driveController.R1().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
         armCommand.prePlace(ArmPositions.getArmState((stationSelector.getType() == Type.CONE)?Position.PREPLACECONE:Position.PREPLACECUBE)))));
-
+/*
     driveController.square()
       .onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE))
         .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))
@@ -126,9 +122,9 @@ public class RobotContainer {
       .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCUBE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 100 || specialsController.touchpad().getAsBoolean())
       .andThen(armCommand.returnToHome(-0.1)))));
-
+*/
     
-    driveController.touchpad().onTrue(armCommand.returnToHome(0));
+    driveController.touchpad().or(specialsController.touchpad()).onTrue(armCommand.returnToHome(0));
 
     specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));
     specialsController.L1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE)));
