@@ -21,7 +21,7 @@
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "minimum",
-        "waitTime": 2.5
+        "waitTime": 2.0
       }
     },
     {
@@ -74,7 +74,7 @@
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "minimum",
-        "waitTime": 2.0
+        "waitTime": 1.5
       }
     },
     {

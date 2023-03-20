@@ -61,7 +61,7 @@ public final class ArmPositions {
         SHOOTHIGHCUBE,
         PREPLACECONE,
         PREPLACECUBE,
-        PREBUMP
+        PREBUMP,
     }
 
     public enum Type{
