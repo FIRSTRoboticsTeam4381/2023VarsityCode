@@ -96,22 +96,11 @@ public class RobotContainer {
 
     //driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
 
-    /* Ash binding
-    driveController.R1().onTrue(new InstantCommand(() -> CommandScheduler.getInstance().schedule(armCommand.placeElevator(ArmPositions.getArmState(stationSelector.getPos())))));
-    */
-
-    /* Ryan Bindings
-     */
-    //driveController.axisGreaterThan(4, 0.5).onTrue(new InstantCommand(() -> arm.resetArm()));
-    /*
-    driveController.cross().onTrue(
+    
+    driveController.axisGreaterThan(4, 0.5).onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        armCommand.placeElevator(ArmPositions.getArmState(stationSelector.getPos())))));
-
-    driveController.R1().onTrue(
-      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        armCommand.prePlace(ArmPositions.getArmState((stationSelector.getType() == Type.CONE)?Position.PREPLACECONE:Position.PREPLACECUBE)))));
-    */
+        armCommand.placeElevator(ArmPositions.getArmState(Position.SPIT))))
+    );
 
     driveController.R1().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
@@ -123,19 +112,6 @@ public class RobotContainer {
         armCommand.placeAndReturn(ArmPositions.getArmState(stationSelector.getPos()))))
     );
 
-        /*
-    driveController.square()
-      .onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE))
-        .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 100 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(-0.1)))));
-    
-    driveController.circle()
-      .onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE))
-      .andThen(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCUBE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 100 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(-0.1)))));
-*/
     
     driveController.touchpad().or(specialsController.touchpad()).onTrue(armCommand.returnToHome(0));
 

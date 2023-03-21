@@ -38,6 +38,8 @@ public final class ArmPositions {
                 return new double[] {55,-15.4,0, 0, 0.5};
             case PREBUMP:
                 return new double[] {-90, 0, 0};
+            case SPIT:
+                return new double[] {0,0,-70, 0, 1};
             default:
                 return new double[] {0,0,0};
         }
@@ -62,6 +64,7 @@ public final class ArmPositions {
         PREPLACECONE,
         PREPLACECUBE,
         PREBUMP,
+        SPIT
     }
 
     public enum Type{
