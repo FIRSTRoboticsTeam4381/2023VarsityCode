@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -195,6 +198,10 @@ public class Swerve extends SubsystemBase {
         m_estimator.addVisionMeasurement(pose, ll.targetingResults.timestamp_LIMELIGHT_publish);
     }
         
+    private Pose3d getPose3d(){
+        return new Pose3d(getPose());
+    }
+
     @Override
     public void periodic(){
         swerveOdometry.update(getYaw(), getPositions());
@@ -217,5 +224,6 @@ public class Swerve extends SubsystemBase {
         m_field.setRobotPose(getPose());
         //m_estimator.update(getYaw(), getPositions());
         //estimatorField.setRobotPose(m_estimator.getEstimatedPosition());
+        Logger.getInstance().recordOutput("Swerve Pose", getPose3d());
     }
 }

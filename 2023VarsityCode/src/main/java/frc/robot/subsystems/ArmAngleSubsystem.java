@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -9,6 +11,8 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -58,9 +62,9 @@ public class ArmAngleSubsystem extends SubsystemBase{
 
         armTiltPID = armTilt1.getPIDController();
         armTiltPID.setFeedbackDevice(armPivotEncoder);
-        armTiltPID.setP(13);
+        armTiltPID.setP(10);
         armTiltPID.setI(0);
-        armTiltPID.setD(1.5);
+        armTiltPID.setD(1.7);
         armTiltPID.setFF(0);
         armTiltPID.setOutputRange(-1, 1);
         armTilt1.setIdleMode(IdleMode.kBrake);
@@ -112,7 +116,6 @@ public class ArmAngleSubsystem extends SubsystemBase{
         );
         m_ArmSetPoint = armProfile.calculate(0.02);
         armTiltPID.setReference(m_ArmSetPoint.position, ControlType.kPosition);
-
 
     }
 }

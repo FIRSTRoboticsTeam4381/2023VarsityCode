@@ -24,7 +24,7 @@ public class IntakeCommands {
             () -> Commands.print("START ARM"), //Init
             () -> arm.setArmAngle(Conversions.degreesToArmEncoder(angle)), //Execute
             interrupted -> Commands.print("END ARM"), //OnEnd
-            () -> Math.abs(Conversions.armEncoderToDegrees(arm.getArmAbsolute()) - angle) < 2, //IsFinished
+            () -> Math.abs(Conversions.armEncoderToDegrees(arm.getArmAbsolute()) - angle) < 10, //IsFinished //Normal 2
             arm //Requirement
         );
     }

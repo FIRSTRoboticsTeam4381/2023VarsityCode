@@ -71,11 +71,6 @@ public final class Autos {
             new PathConstraints(4, 4)));
     }
 
-    public static Command threePieceHIGH(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePieceHighPlace",
-            new PathConstraints(4, 4)));
-    }
-
     public static Command coneParkNoMobility(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConeParkNoDrive", 
             new PathConstraints(4, 3)));

@@ -25,7 +25,7 @@ public final class ArmPositions {
             case HUMANCUBE://UNTESTED
                 return new double[] {21.7,-10,98};
             case HUMANCONE://UNTESTED
-                return new double[] {21.7,-12.75,90};
+                return new double[] {25.27,-12.93,83.23};
             case HUMANSLIDE://UNTESTED
                 return new double[] {-76.0,0,23.5};
             case HYBRID://UNTESTED

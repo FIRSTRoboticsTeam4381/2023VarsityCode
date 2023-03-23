@@ -70,11 +70,10 @@ public class RobotContainer {
     
     //Add autonoumous options to chooser
     m_AutoChooser.setDefaultOption("None", Autos.none());
-    m_AutoChooser.addOption("Three Piece Grab", Autos.threePiece());
-    m_AutoChooser.addOption("ConePark", Autos.coneBalance());
+    //m_AutoChooser.addOption("Three Piece Grab", Autos.threePiece());
+    //m_AutoChooser.addOption("ConePark", Autos.coneBalance());
     m_AutoChooser.addOption("Three Piece Place", Autos.threePiecePlace());
     m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
-    m_AutoChooser.addOption("Three Piece HIGH", Autos.threePieceHIGH());
     m_AutoChooser.addOption("CONE PARK NO OVER", Autos.coneParkNoMobility());
     m_AutoChooser.addOption("Bump Auto", Autos.bumpPath());
     SmartDashboard.putData(m_AutoChooser);
@@ -92,7 +91,7 @@ public class RobotContainer {
     /* Swerve Reset Button */
     zeroSwerve
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
-      .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0))))));     
+      .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(8.27, 4.01, Rotation2d.fromDegrees(0))))));     
 
     //driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
 

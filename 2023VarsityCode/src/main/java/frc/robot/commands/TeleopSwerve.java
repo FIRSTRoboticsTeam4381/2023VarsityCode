@@ -11,6 +11,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.subsystems.Swerve;
+import frc.robot.ArmPositions.Position;
 import frc.robot.ArmPositions.Type;
 
 
@@ -66,10 +67,17 @@ public class TeleopSwerve extends CommandBase {
 
         double speedMod = (Math.abs(RobotContainer.elevator.getElevateHeight()) > 10)?0.3:1;
         
-        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?1:0);
+        if(RobotContainer.stationSelector.getPos() == Position.HYBRID){
+            LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 2);
+        }else{
+            LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?1:0);
+        }
         double x = 0;
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        if(controller.L1().getAsBoolean() && (ll.targetingResults.targets_Retro.length > 0 || ll.targetingResults.targets_Fiducials.length > 0)){
+        if(controller.L1().getAsBoolean() && RobotContainer.stationSelector.getPos()==Position.HYBRID){
+            translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
+        }else if(controller.L1().getAsBoolean() && (ll.targetingResults.targets_Retro.length > 0 || ll.targetingResults.targets_Fiducials.length > 0)){
             if(ll.targetingResults.targets_Retro.length > 0){
                 x = ll.targetingResults.targets_Retro[0].tx*-0.025;
             }else if(ll.targetingResults.targets_Fiducials.length > 0){
