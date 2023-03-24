@@ -47,7 +47,7 @@ public class WristSubsystem extends SubsystemBase{
         wristTilt.configPeakOutputReverse(-1);
         
         wristAbsolute = intake.getAbsoluteEncoder(Type.kDutyCycle);
-        wristPID = new PIDController(5, 0.002, 0);
+        wristPID = new PIDController(5.7, 0.0, 0.2);
         
         intakeEncoder = intake.getEncoder();
         intakeEncoder.setPosition(0);

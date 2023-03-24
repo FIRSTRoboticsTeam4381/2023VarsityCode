@@ -17,11 +17,12 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "stop",
           "HighPlace"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "deadline",
-        "waitTime": 2.5
+        "waitTime": 2.75
       }
     },
     {
@@ -40,7 +41,7 @@
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": 0.25,
-      "isLocked": false,
+      "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
@@ -65,7 +66,7 @@
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": 0.25,
-      "isLocked": false,
+      "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
@@ -90,7 +91,7 @@
       "holonomicAngle": -175.23635830927395,
       "isReversal": true,
       "velOverride": null,
-      "isLocked": false,
+      "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
@@ -115,7 +116,7 @@
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": 0.25,
-      "isLocked": false,
+      "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
@@ -140,7 +141,7 @@
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": 0.25,
-      "isLocked": false,
+      "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
@@ -162,7 +163,7 @@
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
-      "isLocked": false,
+      "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
