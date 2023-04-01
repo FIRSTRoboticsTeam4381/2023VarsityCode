@@ -49,7 +49,7 @@ public class RobotContainer {
   public static final ArmAngleSubsystem arm = new ArmAngleSubsystem();
   public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
   public static final WristSubsystem wrist = new WristSubsystem();
-  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist);
+  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist, s_Swerve);
   public static final LEDS leds = new LEDS();
 
   public static final StationSelector stationSelector = new StationSelector(Position.HIGHPLACE, Type.CONE);
@@ -168,10 +168,9 @@ public class RobotContainer {
 
     specialsController.L1()
       .and(specialsController.cross())
-      .onTrue(armCommand.uprightConeIntake(ArmPositions.getArmState(ArmPositions.Position.UPCONE))
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.UPCONE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(0
-      ))));
+      .andThen(armCommand.returnToHome(-0.1))));
     
   }
 

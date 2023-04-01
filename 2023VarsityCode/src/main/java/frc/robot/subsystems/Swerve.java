@@ -31,6 +31,8 @@ public class Swerve extends SubsystemBase {
     private Field2d estimatorField;
     private SwerveDrivePoseEstimator m_estimator;
 
+    private boolean fieldRel = true;
+
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID, Constants.Swerve.DriveCANBus);
         gyro.setYaw(0);
@@ -201,6 +203,14 @@ public class Swerve extends SubsystemBase {
     private Pose3d getPose3d(){
         return new Pose3d(getPose());
     }
+
+    public void setFieldRel(boolean rel){
+        fieldRel = rel;
+    }
+    public boolean getFieldRel(){
+        return fieldRel;
+    }
+
 
     @Override
     public void periodic(){

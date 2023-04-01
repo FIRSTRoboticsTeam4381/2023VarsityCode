@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Joystick;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.AbsoluteEncoder;
@@ -18,13 +19,17 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.Conversions;
+import frc.robot.ArmPositions;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.ArmPositions.Position;
 
 public class WristSubsystem extends SubsystemBase{
 
-    private double wristPos = 0.5;
+    private double wristPos = Conversions.degreesToWristEncoder(ArmPositions.getArmState(Position.TRANSIT)[2]);
     private double intakeSet = 0;
+    private double wristFF = 0.115625;
+    private double coneWristFF = 0.1265625;
     private PIDController wristPID;
     private WPI_TalonSRX wristTilt;
     private AbsoluteEncoder wristAbsolute;
@@ -32,6 +37,7 @@ public class WristSubsystem extends SubsystemBase{
     private RelativeEncoder intakeEncoder;
     private TrapezoidProfile.State m_WristSetPoint = new TrapezoidProfile.State();
 
+    private Joystick testJoystick = new Joystick(3);
 
     
     public WristSubsystem(){
@@ -47,7 +53,7 @@ public class WristSubsystem extends SubsystemBase{
         wristTilt.configPeakOutputReverse(-1);
         
         wristAbsolute = intake.getAbsoluteEncoder(Type.kDutyCycle);
-        wristPID = new PIDController(5.7, 0.0, 0.2);
+        wristPID = new PIDController(4, 0.00, 0.1);
         
         intakeEncoder = intake.getEncoder();
         intakeEncoder.setPosition(0);
@@ -80,18 +86,30 @@ public class WristSubsystem extends SubsystemBase{
     public void periodic(){
         SmartDashboard.putNumber("Wrist Angle Setpoint", Conversions.wristEncoderToDegrees(wristPos));
         SmartDashboard.putNumber("Wrist Absolute", Conversions.wristEncoderToDegrees(wristAbsolute.getPosition()));
+        
         TrapezoidProfile wristProfile = new TrapezoidProfile(
-            new Constraints(40, 15),
+            new Constraints(40, 10),
             new State(wristPos, 0),
             m_WristSetPoint
         );
         m_WristSetPoint = wristProfile.calculate(0.02);
         wristPID.setSetpoint(m_WristSetPoint.position);
-        wristTilt.set(MathUtil.clamp(wristPID.calculate(wristAbsolute.getPosition()), -0.75, 0.75)-0.0625*Math.sin((RobotContainer.arm.getArmAngle()*(0.25/60)*2*Math.PI) + (wristAbsolute.getPosition()-0.5)*2*Math.PI));
-        //FF -0.0625*Math.sin(armTilt1Encoder.getPosition()*(0.25/60)*2*Math.PI)
-        //PID MathUtil.clamp(wristPID.calculate(wristAbsolute.getPosition()), -0.5, 0.5)
+        wristTilt.set(MathUtil.clamp(wristPID.calculate(wristAbsolute.getPosition()), -0.75, 0.75)-wristFF*Math.sin((RobotContainer.arm.getArmAngle()*(0.25/60)*2*Math.PI) + (wristAbsolute.getPosition()-0.5)*2*Math.PI));
 
         intake.set(intakeSet);
 
+
+        /* Code to find FF
+        SmartDashboard.putNumber("WristFF", testJoystick.getThrottle()*0.2);
+        wristTilt.set(testJoystick.getThrottle()*0.2);
+        if(testJoystick.getTrigger()){
+            intake.set(1);
+        }else if(testJoystick.getRawButton(2)){
+            intake.set(-1);
+        }else{
+            intake.set(0);
+        }
+        */
+        
     }
 }

@@ -87,7 +87,7 @@ public class TeleopSwerve extends CommandBase {
             s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
         }else{
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, rotation*speedMod, true, openLoop);
+            s_Swerve.drive(translation, rotation*speedMod, s_Swerve.getFieldRel(), openLoop);
         }
 
         

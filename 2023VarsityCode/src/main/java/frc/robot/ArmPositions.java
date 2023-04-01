@@ -6,7 +6,7 @@ public final class ArmPositions {
     public static final double[] getArmState(Position pos){
         switch(pos){
             case TRANSIT://UNTESTED
-                return new double[] {0,0,0};
+                return new double[] {0,0,65};
             case HIGHPLACE://UNTESTED
             //OLD {49,-32,84.3}
                 return new double[] {50,-30,66,0.2, 1};
@@ -17,29 +17,32 @@ public final class ArmPositions {
             case PREPLACECONE:
                 return new double[] {50,0,0};
             case UPCONE://UNTESTED
-                return new double[] {106,-0.15,3.9};
+            // Old {106,-0.15,3.9}
+                return new double[] {98.37,0,30.81, 0};
             case CUBE://GOOD
-                return new double[] {107,0,26.0};
+                return new double[] {107,0,26.0, 0};
             case AUTOCUBE://GOOD
-                return new double[] {-99,-0.4,-44.6};
+                return new double[] {-99,-0.4,-44.6, 0};
             case HUMANCUBE://UNTESTED
-                return new double[] {21.7,-10,98};
+                return new double[] {21.7,-10,98, 0};
             case HUMANCONE://UNTESTED
-                return new double[] {25.27,-12.93,83.23};
+            //Old elevator -12.93 Old wrist 83.23
+                return new double[] {25.27,-15,90, 0};
             case HUMANSLIDE://UNTESTED
-                return new double[] {-76.0,0,23.5};
+                return new double[] {-76.0,0,23.5, 0};
             case HYBRID://UNTESTED
-                return new double[] {68,0,74, 0, 0.5};
+                return new double[] {74,0,65, 0, 0.5};
             case TIPCONE://GOOD - Broke encoder though
-                return new double[] {-98,-5.2,-68.1};
+            //Old{-98,-5.2,-68.1
+                return new double[] {113.44,-0.86,13.60, 0};
             case SHOOTMIDCUBE://UNTESTED
-                return new double[] {0,0,70, 0, 0.5};
+                return new double[] {0,0,68, 0, 0.5};
             case SHOOTHIGHCUBE://UNTESTED
                 return new double[] {55,-15.4,0, 0, 0.5};
             case PREBUMP:
                 return new double[] {-90, 0, 0};
             case SPIT:
-                return new double[] {0,0,-70, 0, 1};
+                return new double[] {0,0,-45, 0, 1};
             default:
                 return new double[] {0,0,0};
         }

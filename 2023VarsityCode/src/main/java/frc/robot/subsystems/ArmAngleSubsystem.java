@@ -69,7 +69,7 @@ public class ArmAngleSubsystem extends SubsystemBase{
         armTiltPID.setOutputRange(-1, 1);
         armTilt1.setIdleMode(IdleMode.kBrake);
 
-        armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
+        //armTiltPID.setSmartMotionMaxAccel(2 * Constants.IntakeArm.ArmTiltRatio, 0);
     }
 
     public void setArmAngle(double angle){
@@ -99,16 +99,8 @@ public class ArmAngleSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("Arm Absolute", (armPivotEncoder.getPosition()-0.5)*360);
         SmartDashboard.putNumber("Arm Angle Setpoint", Conversions.armEncoderToDegrees(anglePos));
 
-        /*
-        TrapezoidProfile armProfile = new TrapezoidProfile(
-            new Constraints(3000, 500),//Could use a little less accel
-            new State(anglePos, 0),
-            m_ArmSetPoint
-        );
-        m_ArmSetPoint = armProfile.calculate(0.02);
-        armTiltPID.setReference(m_ArmSetPoint.position, ControlType.kPosition);
-        */
-
+        
+        
         TrapezoidProfile armProfile = new TrapezoidProfile(
             new Constraints(6, 5),//Could use a little less accel
             new State(anglePos, 0),

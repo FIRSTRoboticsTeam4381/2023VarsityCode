@@ -2,8 +2,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.*;
 import frc.lib.math.Conversions;
+import frc.robot.ArmPositions;
+import frc.robot.ArmPositions.Position;
 import frc.robot.subsystems.ArmAngleSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.WristSubsystem;
 
 public class IntakeCommands {
@@ -11,11 +14,13 @@ public class IntakeCommands {
     private ArmAngleSubsystem arm;
     private ElevatorSubsystem elevator;
     private WristSubsystem wrist;
+    private Swerve swerve;
 
-    public IntakeCommands(ArmAngleSubsystem arm, ElevatorSubsystem elevator, WristSubsystem wrist){
+    public IntakeCommands(ArmAngleSubsystem arm, ElevatorSubsystem elevator, WristSubsystem wrist, Swerve swerve){
         this.arm = arm;
         this.elevator = elevator;
         this.wrist = wrist;
+        this.swerve = swerve;
     }
     private double prevArmAngle = 0;
 
@@ -72,11 +77,11 @@ public class IntakeCommands {
                 elevatorToHeight(placeState[1])
             ),
             placeIntake(placeState[4]),
+            elevatorToHeight(0),
             new ParallelCommandGroup(
-                wristToPosition(0),
-                elevatorToHeight(0)
-            ),
-            armToAngle(0)
+                wristToPosition(ArmPositions.getArmState(Position.TRANSIT)[2]),
+                armToAngle(ArmPositions.getArmState(Position.TRANSIT)[0])
+            )
             
         );
     }
@@ -113,13 +118,13 @@ public class IntakeCommands {
     public SequentialCommandGroup intakePosition(double[] state){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
+                new InstantCommand(() -> swerve.setFieldRel(state[3] == 0)),
                 armToAngle(state[0]),
                 elevatorToHeight(state[1]),
                 wristToPosition(state[2]),
                 new InstantCommand(() -> wrist.setIntakeSpeed(-1)),
                 new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) > 300)
             )
-            //new InstantCommand(() -> arm.resetArm())
         );
     }
 
@@ -143,10 +148,11 @@ public class IntakeCommands {
     public SequentialCommandGroup returnToHome(double holdPower){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
+                new InstantCommand(() -> swerve.setFieldRel(true)),
                 new InstantCommand(() -> wrist.setIntakeSpeed(holdPower)),
-                wristToPosition(0),
-                elevatorToHeight(0),
-                armToAngle(0)
+                wristToPosition(ArmPositions.getArmState(Position.TRANSIT)[2]),
+                elevatorToHeight(ArmPositions.getArmState(Position.TRANSIT)[1]),
+                armToAngle(ArmPositions.getArmState(Position.TRANSIT)[0])
             )
             //new InstantCommand(() -> arm.resetArm())
         );
@@ -166,7 +172,10 @@ public class IntakeCommands {
     //Better Placing
     public SequentialCommandGroup preplaceElevator(double[] placeState){
         return new SequentialCommandGroup(
-            armToAngle(placeState[0]),
+            new ParallelCommandGroup(
+                armToAngle(placeState[0]),
+                wristToPosition((placeState[1] < -13)? 0: ArmPositions.getArmState(Position.TRANSIT)[2])
+            ),
             new ParallelCommandGroup(
                 new WaitCommand(placeState[3]).andThen(wristToPosition(placeState[2])),
                 elevatorToHeight(placeState[1])
@@ -178,10 +187,13 @@ public class IntakeCommands {
         return new SequentialCommandGroup(
             placeIntake(placeState[4]),
             new ParallelCommandGroup(
-                wristToPosition(0),
-                elevatorToHeight(0)
+                wristToPosition((placeState[1] < -13)? 0: ArmPositions.getArmState(Position.TRANSIT)[2]),
+                elevatorToHeight(ArmPositions.getArmState(Position.TRANSIT)[1])
             ),
-            armToAngle(0)
+            new ParallelCommandGroup(
+                wristToPosition(ArmPositions.getArmState(Position.TRANSIT)[2]),
+                armToAngle(ArmPositions.getArmState(Position.TRANSIT)[0])
+            )
         );
     }
 
