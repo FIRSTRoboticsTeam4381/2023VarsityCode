@@ -27,7 +27,7 @@ public final class ArmPositions {
                 return new double[] {21.7,-10,98, 0};
             case HUMANCONE://UNTESTED
             //Old elevator -12.93 Old wrist 83.23
-                return new double[] {25.27,-14.3,90, 0};
+                return new double[] {25.27,-13,90, 0};
             case HUMANSLIDE://UNTESTED
                 return new double[] {-76.0,0,23.5, 0};
             case HYBRID://UNTESTED
@@ -42,7 +42,7 @@ public final class ArmPositions {
             case PREBUMP:
                 return new double[] {-90, 0, 45};
             case SPIT:
-                return new double[] {0,0,-45, 0, 1};
+                return new double[] {0,0,77, 0, 1};
             default:
                 return new double[] {0,0,0};
         }
