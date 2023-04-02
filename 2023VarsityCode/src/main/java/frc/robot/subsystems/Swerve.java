@@ -1,8 +1,12 @@
 package frc.robot.subsystems;
+import java.lang.reflect.Field;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -23,13 +27,11 @@ import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.SwerveModule;
 
 public class Swerve extends SubsystemBase {
-    public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
     private LimelightResults ll;
     private Field2d m_field;
-    private Field2d estimatorField;
-    private SwerveDrivePoseEstimator m_estimator;
+    private SwerveDrivePoseEstimator estimator;
 
     private boolean fieldRel = true;
 
@@ -46,17 +48,8 @@ public class Swerve extends SubsystemBase {
             new SwerveModule(3, Constants.Swerve.Mod3.constants)
         };
 
-        swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getPositions());
-        
-
-        //ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-
-        m_field = new Field2d();
-        m_field.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-        SmartDashboard.putData("Field", m_field);
-
-        /*
-        m_estimator = new SwerveDrivePoseEstimator(
+        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
+        estimator = new SwerveDrivePoseEstimator(
             Constants.Swerve.swerveKinematics,
             getYaw(),
             getPositions(), 
@@ -64,11 +57,12 @@ public class Swerve extends SubsystemBase {
             new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01), 
             new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01)
         );
+        
 
-        estimatorField = new Field2d();
-        estimatorField.setRobotPose(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-        SmartDashboard.putData("limeField", estimatorField);
-        */
+        m_field = new Field2d();
+        m_field.setRobotPose(estimator.getEstimatedPosition());
+        SmartDashboard.putData("Field", m_field);
+
     }
 
     /**
@@ -197,7 +191,7 @@ public class Swerve extends SubsystemBase {
             ll.targetingResults.getBotPose2d().getY()+4.01,
             ll.targetingResults.getBotPose2d().getRotation()
         );
-        m_estimator.addVisionMeasurement(pose, ll.targetingResults.timestamp_LIMELIGHT_publish);
+        estimator.addVisionMeasurement(pose, ll.targetingResults.timestamp_LIMELIGHT_publish);
     }
         
     private Pose3d getPose3d(){

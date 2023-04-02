@@ -91,6 +91,10 @@ public class TeleopSwerve extends CommandBase {
         }
 
         
+        if(controller.cross().getAsBoolean()){
+            s_Swerve.addVision();
+        }
+
     }
 
 
