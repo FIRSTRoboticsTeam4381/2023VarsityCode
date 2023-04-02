@@ -49,8 +49,8 @@ public class RobotContainer {
   public static final ArmAngleSubsystem arm = new ArmAngleSubsystem();
   public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
   public static final WristSubsystem wrist = new WristSubsystem();
-  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist, s_Swerve);
   public static final LEDS leds = new LEDS();
+  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist, s_Swerve, leds);
 
   public static final StationSelector stationSelector = new StationSelector(Position.HIGHPLACE, Type.CONE);
 
@@ -74,8 +74,10 @@ public class RobotContainer {
     //m_AutoChooser.addOption("ConePark", Autos.coneBalance());
     m_AutoChooser.addOption("Three Piece Place", Autos.threePiecePlace());
     m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
-    m_AutoChooser.addOption("CONE PARK NO OVER", Autos.coneParkNoMobility());
-    m_AutoChooser.addOption("Bump Auto", Autos.bumpPath());
+    m_AutoChooser.addOption("Cone Park Pickup", Autos.coneParkPickup());
+    m_AutoChooser.addOption("Two Piece Bump", Autos.bumpPath());
+    m_AutoChooser.addOption("Cone Park NO MOBILITY", Autos.conePark());
+    m_AutoChooser.addOption("FourPiece???", Autos.fourPiece());
     SmartDashboard.putData(m_AutoChooser);
 
   }

@@ -40,7 +40,7 @@ public final class ArmPositions {
             case SHOOTHIGHCUBE://UNTESTED
                 return new double[] {55,-15.4,0, 0, 0.5};
             case PREBUMP:
-                return new double[] {-90, 0, 0};
+                return new double[] {-90, 0, 45};
             case SPIT:
                 return new double[] {0,0,-45, 0, 1};
             default:

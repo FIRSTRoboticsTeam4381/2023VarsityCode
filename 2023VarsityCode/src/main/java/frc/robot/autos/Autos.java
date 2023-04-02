@@ -29,41 +29,39 @@ public final class Autos {
         Map.entry("stop", new InstantCommand(() -> RobotContainer.s_Swerve.drive(new Translation2d(0,0), 0, true, true))),
         Map.entry("balance", new Balance(RobotContainer.s_Swerve)),
         Map.entry("BackwardsCube", RobotContainer.armCommand.intakePosition(ArmPositions.getArmState(Position.AUTOCUBE))),
-        Map.entry("HighPlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.HIGHPLACE))),
-        Map.entry("CubePlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.SHOOTHIGHCUBE))),
-        Map.entry("MidPlace", RobotContainer.armCommand.placeElevator(ArmPositions.getArmState(Position.SHOOTMIDCUBE))),
-        Map.entry("Transit", RobotContainer.armCommand.autoReturnToHome(-0.1)),
+        Map.entry("HighPlace", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.HIGHPLACE)).andThen(RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.HIGHPLACE)))),
+        Map.entry("CubePlace", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)).andThen(RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)))),
+        Map.entry("MidPlace", RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTMIDCUBE))),
+        Map.entry("Transit", RobotContainer.armCommand.returnToHome(-0.1)),
         Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE))),
-        Map.entry("PreBump", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREBUMP)))
+        Map.entry("PreBump", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREBUMP))),
+        Map.entry("SHOOT", RobotContainer.armCommand.placeIntake(1))
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         RobotContainer.s_Swerve::getPose, // Pose2d supplier
         RobotContainer.s_Swerve::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.Swerve.swerveKinematics, // SwerveDriveKinematics
-        new PIDConstants(7.3, 0.001, 0.01),//Old7.3, 0.001, 0.01 // PID constants to correct for translation error (used to create the X and Y PID controllers)
+        new PIDConstants(7, 0.001, 0.01),//Old7.3, 0.001, 0.01 // PID constants to correct for translation error (used to create the X and Y PID controllers)
         new PIDConstants(1.8, 0, 0.004), //Old 1.8, 0, 0.004 // PID constants to correct for rotation error (used to create the rotation controller)
         RobotContainer.s_Swerve::setModuleStates, // Module states consumer used to output to the drive subsystem
         eventMap,
         true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
         RobotContainer.s_Swerve // The drive subsystem. Used to properly set the requirements of path following commands
-    );
-    
-    
+    );    
 
-    public static Command threePiece(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ThreePiece",
-            new PathConstraints(4, 3)));
-    }
-
-    public static Command coneBalance(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConePark",
-            new PathConstraints(4, 3)));
+    public static Command fourPiece(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("THEORETICAL4Piece",
+            new PathConstraints(4, 4)));
     }
 
     public static Command twoPieceBalance(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("TwoPieceBalance",
-            new PathConstraints(4, 3)));
+            new PathConstraints(4, 3))).andThen(balanceDrive());
+    }
+    public static Command balanceDrive(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("BalanceDrive", 
+            new PathConstraints(2, 0.75)));
     }
 
     public static Command threePiecePlace(){
@@ -71,10 +69,17 @@ public final class Autos {
             new PathConstraints(4, 4)));
     }
 
-    public static Command coneParkNoMobility(){
-        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConeParkNoDrive", 
-            new PathConstraints(4, 3)));
+    public static Command coneParkPickup(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConeParkPickup", 
+            new PathConstraints(2, 0.9)));
     }
+
+    public static Command conePark(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConePark", 
+            new PathConstraints(2, 0.75)));
+    }
+    
+
 
     public static Command bumpPath(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("BumpPath", 

@@ -6,6 +6,7 @@ import frc.robot.ArmPositions;
 import frc.robot.ArmPositions.Position;
 import frc.robot.subsystems.ArmAngleSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDS;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.WristSubsystem;
 
@@ -15,12 +16,14 @@ public class IntakeCommands {
     private ElevatorSubsystem elevator;
     private WristSubsystem wrist;
     private Swerve swerve;
+    private LEDS leds;
 
-    public IntakeCommands(ArmAngleSubsystem arm, ElevatorSubsystem elevator, WristSubsystem wrist, Swerve swerve){
+    public IntakeCommands(ArmAngleSubsystem arm, ElevatorSubsystem elevator, WristSubsystem wrist, Swerve swerve, LEDS leds){
         this.arm = arm;
         this.elevator = elevator;
         this.wrist = wrist;
         this.swerve = swerve;
+        this.leds = leds;
     }
     private double prevArmAngle = 0;
 
@@ -150,6 +153,7 @@ public class IntakeCommands {
             new ParallelCommandGroup(
                 new InstantCommand(() -> swerve.setFieldRel(true)),
                 new InstantCommand(() -> wrist.setIntakeSpeed(holdPower)),
+                new InstantCommand(() -> leds.setBlinks(0)),
                 wristToPosition(ArmPositions.getArmState(Position.TRANSIT)[2]),
                 elevatorToHeight(ArmPositions.getArmState(Position.TRANSIT)[1]),
                 armToAngle(ArmPositions.getArmState(Position.TRANSIT)[0])
