@@ -43,6 +43,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     ctreConfigs = new CTREConfigs();
 
+    /*
     Logger.getInstance().recordMetadata("ProjectName", "MyProject"); // Set a metadata value
 
     if (isReal()) {
@@ -58,7 +59,7 @@ public class Robot extends LoggedRobot {
 
 // Logger.getInstance().disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
 Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-
+*/ 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
