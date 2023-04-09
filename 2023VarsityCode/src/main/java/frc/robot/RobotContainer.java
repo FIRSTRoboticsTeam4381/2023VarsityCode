@@ -113,8 +113,10 @@ public class RobotContainer {
         armCommand.placeAndReturn(ArmPositions.getArmState(stationSelector.getPos()))))
     );
 
+    //Auto Testing Stuff
     
-    driveController.touchpad().or(specialsController.touchpad()).onTrue(armCommand.returnToHome(0));
+    
+    driveController.touchpad().or(specialsController.touchpad()).onTrue(armCommand.returnToHome(-0.1));
 
     specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));
     specialsController.L1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE)));
@@ -165,6 +167,12 @@ public class RobotContainer {
     specialsController.L1()
       .and(specialsController.square())
       .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))
+      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
+      .andThen(armCommand.returnToHome(0))));
+
+    specialsController.L1()
+      .and(specialsController.options())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.UPRIGHTOVERRIDE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
       .andThen(armCommand.returnToHome(0))));
 

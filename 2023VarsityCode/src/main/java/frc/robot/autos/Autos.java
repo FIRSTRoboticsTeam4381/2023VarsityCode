@@ -30,7 +30,7 @@ public final class Autos {
         Map.entry("balance", new Balance(RobotContainer.s_Swerve)),
         Map.entry("BackwardsCube", RobotContainer.armCommand.intakePosition(ArmPositions.getArmState(Position.AUTOCUBE))),
         Map.entry("HighPlace", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.HIGHPLACE)).andThen(RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.HIGHPLACE)))),
-        Map.entry("CubePlace", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)).andThen(RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)))),
+        Map.entry("CubePlace", RobotContainer.armCommand.autoHighcube()),
         Map.entry("MidPlace", RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTMIDCUBE))),
         Map.entry("Transit", RobotContainer.armCommand.returnToHome(-0.1)),
         Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE))),

@@ -90,18 +90,21 @@ public class IntakeCommands {
     }
 
 
-    public SequentialCommandGroup autoPlaceElevator(double[] state){
+    public SequentialCommandGroup autoHighcube(){
         return new SequentialCommandGroup(
-            armToAngle(state[0]),
             new ParallelCommandGroup(
-                elevatorToHeight(state[1]),
-                wristToPosition(state[2])
+                wristToPosition(0),
+                armToAngle(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)[0])
             ),
-            placeIntake(state[4]),
-            wristToPosition(0),
+            new ParallelCommandGroup(
+                elevatorToHeight(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)[1])
+            ),
+            placeIntake(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)[4]),
             elevatorToHeight(0),
-            armToAngle(0)
-            
+            new ParallelCommandGroup(
+                armToAngle(0),
+                wristToPosition(ArmPositions.getArmState(Position.TRANSIT)[2])
+            )
         );
     }
 
