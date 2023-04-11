@@ -74,7 +74,7 @@ public class TeleopSwerve extends CommandBase {
         }
         double x = 0;
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        if(controller.L1().getAsBoolean() && (s_Swerve.getYaw().getDegrees() > 300 || s_Swerve.getYaw().getDegrees() < 60)){
+        if(controller.L1().getAsBoolean() && (Math.abs(s_Swerve.getYaw().getDegrees()%360) < 90)){
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, speedMod*steerAlign(0, s_Swerve.getYaw().getDegrees()), true, openLoop);
         }else if(controller.L1().getAsBoolean() && RobotContainer.stationSelector.getPos()==Position.HYBRID){
