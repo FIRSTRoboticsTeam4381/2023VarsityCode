@@ -35,14 +35,21 @@ public final class Autos {
         Map.entry("Transit", RobotContainer.armCommand.returnToHome(-0.1)),
         Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE))),
         Map.entry("PreBump", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREBUMP))),
-        Map.entry("SHOOT", RobotContainer.armCommand.placeIntake(1))
+        //4Piece positions
+        Map.entry("Drop", RobotContainer.armCommand.placeIntake(0.4)),
+        Map.entry("Shoot", RobotContainer.armCommand.placeIntake(1)),
+        Map.entry("Intake", RobotContainer.armCommand.intakePosition(ArmPositions.getArmState(Position.CUBE))),
+        Map.entry("LowPre", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.HYBRID))),
+        Map.entry("UpperPre", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.UPPERPRE))),
+        Map.entry("PlaceHigh", RobotContainer.armCommand.preplaceElevator(ArmPositions.getArmState(Position.SHOOTHIGHCUBE)).andThen(RobotContainer.armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTHIGHCUBE))))
+
     ));
 
     private static final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         RobotContainer.s_Swerve::getPose, // Pose2d supplier
         RobotContainer.s_Swerve::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.Swerve.swerveKinematics, // SwerveDriveKinematics
-        new PIDConstants(7, 0.001, 0.01),//Old7.3, 0.001, 0.01 // PID constants to correct for translation error (used to create the X and Y PID controllers)
+        new PIDConstants(7.6, 0.001, 0.02),//Old7.3, 0.001, 0.01 // PID constants to correct for translation error (used to create the X and Y PID controllers)
         new PIDConstants(1.8, 0, 0.004), //Old 1.8, 0, 0.004 // PID constants to correct for rotation error (used to create the rotation controller)
         RobotContainer.s_Swerve::setModuleStates, // Module states consumer used to output to the drive subsystem
         eventMap,
@@ -52,7 +59,7 @@ public final class Autos {
 
     public static Command fourPiece(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("THEORETICAL4Piece",
-            new PathConstraints(2, 1)));
+            new PathConstraints(4, 4)));
     }
 
     public static Command twoPieceBalance(){

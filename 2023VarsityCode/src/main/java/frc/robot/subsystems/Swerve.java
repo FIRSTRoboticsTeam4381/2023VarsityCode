@@ -61,10 +61,10 @@ public class Swerve extends SubsystemBase {
             new MatBuilder<>(Nat.N3(), Nat.N1()).fill(2, 2, 2)
         );
         
-        if(ll.targetingResults.targets_Fiducials.length>1){
-            estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), ll.targetingResults.latency_capture);
-        }
-        resetToVision();
+        // if(ll.targetingResults.targets_Fiducials.length>1){
+        //     estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), ll.targetingResults.latency_capture);
+        // }
+        //resetToVision();
 
         m_field = new Field2d();
         m_field.setRobotPose(estimator.getEstimatedPosition());
@@ -212,26 +212,44 @@ public class Swerve extends SubsystemBase {
         }
     }
     */
+    private Pose2d tempPose;
     public void addVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.01){
-                estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.008){
+                if(DriverStation.getAlliance() == Alliance.Blue){
+                    estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
+                 }else{
+                     tempPose = new Pose2d(
+                         16.54-ll.targetingResults.getBotPose2d_wpiBlue().getX(),
+                         8.02-ll.targetingResults.getBotPose2d_wpiBlue().getY(),
+                         ll.targetingResults.getBotPose2d_wpiBlue().getRotation().rotateBy(Rotation2d.fromDegrees(180))//times(-1).
+                         );
+                     estimator.addVisionMeasurement(tempPose, Timer.getFPGATimestamp());                
+                 }
             }
         }
     }
 
     public void resetToVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            //if(ll.targetingResults.targets_Fiducials[0].ta > 0.1){
-                estimator.resetPosition(getYaw(), getPositions(), ll.targetingResults.getBotPose2d_wpiBlue());
-            //}
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.01){
+                if(DriverStation.getAlliance() == Alliance.Blue){
+                    estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
+                }else{
+                    tempPose = new Pose2d(
+                        16.54-ll.targetingResults.getBotPose2d_wpiBlue().getX(),
+                        ll.targetingResults.getBotPose2d_wpiBlue().getY(),
+                        ll.targetingResults.getBotPose2d_wpiBlue().getRotation().times(-1).rotateBy(Rotation2d.fromDegrees(180))
+                        );                
+                    }
+            }
         }
     }
 
     @Override
     public void periodic(){
         estimator.update(getYaw(), getPositions());
-        //addVision();
+        addVision();
         SmartDashboard.putNumber("Gyro Angle", getYaw().getDegrees());
         SmartDashboard.putNumber("Gyro Roll", getRoll());
 
@@ -251,13 +269,5 @@ public class Swerve extends SubsystemBase {
         m_field.setRobotPose(getPose());
 
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-
-        /* Auto Pose Reset
-        if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.1){
-                estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), ll.targetingResults.timestamp_RIOFPGA_capture);
-            }
-        }
-        */
     }
 }
