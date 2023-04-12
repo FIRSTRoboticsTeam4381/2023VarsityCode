@@ -52,7 +52,7 @@ public final class Autos {
 
     public static Command fourPiece(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("THEORETICAL4Piece",
-            new PathConstraints(4, 4)));
+            new PathConstraints(2, 1)));
     }
 
     public static Command twoPieceBalance(){

@@ -35,7 +35,7 @@
         "x": 5.232210926123889,
         "y": 4.864312243271195
       },
-      "holonomicAngle": 177.51044707800082,
+      "holonomicAngle": -9.54627222229516,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -49,18 +49,18 @@
     },
     {
       "anchorPoint": {
-        "x": 2.2225824281828577,
-        "y": 4.215904237885023
+        "x": 2.046809905585623,
+        "y": 4.716116440779891
       },
       "prevControl": {
-        "x": 3.4133460983486037,
-        "y": 5.004301135056839
+        "x": 3.3600142413960046,
+        "y": 4.670439768229964
       },
       "nextControl": {
-        "x": 3.4133460983486037,
-        "y": 5.004301135056839
+        "x": 3.3600142413960046,
+        "y": 4.670439768229964
       },
-      "holonomicAngle": 27.8972710309477,
+      "holonomicAngle": 159.90476880809513,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -74,18 +74,18 @@
     },
     {
       "anchorPoint": {
-        "x": 6.823440611725,
-        "y": 3.5527050023204323
+        "x": 6.717249673815586,
+        "y": 3.6541338039941036
       },
       "prevControl": {
-        "x": 5.924496428647381,
-        "y": 4.868119021273262
+        "x": 5.895069567916913,
+        "y": 5.252817343241524
       },
       "nextControl": {
-        "x": 5.924496428647381,
-        "y": 4.868119021273262
+        "x": 5.895069567916913,
+        "y": 5.252817343241524
       },
-      "holonomicAngle": 150.25511870305775,
+      "holonomicAngle": -39.57302373108188,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -110,7 +110,7 @@
         "x": 4.154251619403648,
         "y": 4.579099460580409
       },
-      "holonomicAngle": -0.5871557033821722,
+      "holonomicAngle": -178.92999765423642,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -124,18 +124,18 @@
     },
     {
       "anchorPoint": {
-        "x": 6.821661314964781,
-        "y": 2.3271553835152523
+        "x": 6.865698859602848,
+        "y": 2.5236361583834284
       },
       "prevControl": {
-        "x": 6.707088779480333,
-        "y": 4.117389687730539
+        "x": 6.214806275766398,
+        "y": 5.207140670691598
       },
       "nextControl": {
-        "x": 6.707088779480333,
-        "y": 4.117389687730539
+        "x": 6.214806275766398,
+        "y": 5.207140670691598
       },
-      "holonomicAngle": 121.16871679158271,
+      "holonomicAngle": -61.54455755560131,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -149,15 +149,15 @@
     },
     {
       "anchorPoint": {
-        "x": 1.9897140648982155,
-        "y": 4.453475573617814
+        "x": 2.0924865781355497,
+        "y": 4.430637237342851
       },
       "prevControl": {
-        "x": 3.969560953079505,
-        "y": 4.81344773510532
+        "x": 4.072333466316839,
+        "y": 4.790609398830357
       },
       "nextControl": null,
-      "holonomicAngle": 6.714075423563666,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -175,66 +175,5 @@
   "maxVelocity": null,
   "maxAcceleration": 4.0,
   "isReversed": null,
-  "markers": [
-    {
-      "position": 0.21818181818181817,
-      "names": [
-        "BackwardsCube"
-      ]
-    },
-    {
-      "position": 1.01,
-      "names": [
-        "PreBump"
-      ]
-    },
-    {
-      "position": 3.01,
-      "names": [
-        "PreBump"
-      ]
-    },
-    {
-      "position": 5.01,
-      "names": [
-        "PreBump"
-      ]
-    },
-    {
-      "position": 1.99,
-      "names": [
-        "SHOOT"
-      ]
-    },
-    {
-      "position": 2.01,
-      "names": [
-        "PreBump"
-      ]
-    },
-    {
-      "position": 2.65,
-      "names": [
-        "BackwardsCube"
-      ]
-    },
-    {
-      "position": 4.71272727272718,
-      "names": [
-        "BackwardsCube"
-      ]
-    },
-    {
-      "position": 3.99,
-      "names": [
-        "SHOOT"
-      ]
-    },
-    {
-      "position": 0.0,
-      "names": [
-        "SHOOT"
-      ]
-    }
-  ]
+  "markers": []
 }

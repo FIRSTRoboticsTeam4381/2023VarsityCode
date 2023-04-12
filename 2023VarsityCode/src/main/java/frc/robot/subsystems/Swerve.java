@@ -18,6 +18,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -55,12 +58,13 @@ public class Swerve extends SubsystemBase {
             getPositions(), 
             new Pose2d(0,0, Rotation2d.fromDegrees(0)),
             new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), 
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9)
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(2, 2, 2)
         );
         
         if(ll.targetingResults.targets_Fiducials.length>1){
             estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), ll.targetingResults.latency_capture);
         }
+        resetToVision();
 
         m_field = new Field2d();
         m_field.setRobotPose(estimator.getEstimatedPosition());
@@ -193,25 +197,41 @@ public class Swerve extends SubsystemBase {
         return fieldRel;
     }
 
+    /*
+    private Pose2d newPose;
     public void addVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.1){
-                estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), ll.targetingResults.timestamp_RIOFPGA_capture);
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.01){
+                if(DriverStation.getAlliance() == Alliance.Red){
+                    newPose = new Pose2d(16.54-ll.targetingResults.getBotPose2d_wpiBlue().getX(), ll.targetingResults.getBotPose2d_wpiBlue().getY(), ll.targetingResults.getBotPose2d_wpiBlue().getRotation().rotateBy(Rotation2d.fromDegrees(180)));
+                }else{
+                    newPose = ll.targetingResults.getBotPose2d_wpiBlue();
+                }
+                estimator.addVisionMeasurement(newPose, Timer.getFPGATimestamp());
+            }
+        }
+    }
+    */
+    public void addVision(){
+        if(ll.targetingResults.targets_Fiducials.length > 0){
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.01){
+                estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
             }
         }
     }
 
     public void resetToVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.1){
+            //if(ll.targetingResults.targets_Fiducials[0].ta > 0.1){
                 estimator.resetPosition(getYaw(), getPositions(), ll.targetingResults.getBotPose2d_wpiBlue());
-            }
+            //}
         }
     }
 
     @Override
     public void periodic(){
         estimator.update(getYaw(), getPositions());
+        //addVision();
         SmartDashboard.putNumber("Gyro Angle", getYaw().getDegrees());
         SmartDashboard.putNumber("Gyro Roll", getRoll());
 

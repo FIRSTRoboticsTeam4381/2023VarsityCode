@@ -70,7 +70,8 @@ public class TeleopSwerve extends CommandBase {
         if(RobotContainer.stationSelector.getPos() == Position.HYBRID){
             LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 2);
         }else{
-            LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?1:0);
+            //LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?1:0);
+            LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 3);
         }
         double x = 0;
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
@@ -93,14 +94,10 @@ public class TeleopSwerve extends CommandBase {
             s_Swerve.drive(translation, rotation*speedMod, s_Swerve.getFieldRel(), openLoop);
         }
 
-        
-        if(controller.cross().getAsBoolean()){
-            s_Swerve.addVision();
-        }
-
         if(controller.square().getAsBoolean()){
             s_Swerve.resetToVision();
         }
+        s_Swerve.addVision();
     }
 
 
