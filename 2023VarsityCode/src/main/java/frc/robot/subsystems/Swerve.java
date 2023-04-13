@@ -57,14 +57,10 @@ public class Swerve extends SubsystemBase {
             getYaw(),
             getPositions(), 
             new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.0005, 0.0005, 0.0005), 
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.05, 0.05, 0.05)
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.00000001, 0.00000001, 0.00000001), 
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.00000025, 0.00000025, 0.00000025)
         );
         
-        // if(ll.targetingResults.targets_Fiducials.length>1){
-        //     estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), ll.targetingResults.latency_capture);
-        // }
-        //resetToVision();
 
         m_field = new Field2d();
         m_field.setRobotPose(estimator.getEstimatedPosition());
@@ -215,7 +211,7 @@ public class Swerve extends SubsystemBase {
     private Pose2d tempPose;
     public void addVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.018){
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.002 || ll.targetingResults.targets_Fiducials.length > 1){
                 if(DriverStation.getAlliance() == Alliance.Blue){
                     estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
                  }else{
@@ -224,7 +220,7 @@ public class Swerve extends SubsystemBase {
                          8.02-ll.targetingResults.getBotPose2d_wpiBlue().getY(),
                          ll.targetingResults.getBotPose2d_wpiBlue().getRotation().rotateBy(Rotation2d.fromDegrees(180))//times(-1).
                          );
-                     estimator.addVisionMeasurement(tempPose, Timer.getFPGATimestamp());                
+                     estimator.addVisionMeasurement(tempPose, Timer.getFPGATimestamp() - (ll.targetingResults.latency_pipeline/1000.0) - (ll.targetingResults.latency_capture/1000.0));                
                  }
             }
         }

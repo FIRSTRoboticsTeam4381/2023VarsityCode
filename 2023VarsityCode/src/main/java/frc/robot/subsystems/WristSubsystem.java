@@ -55,6 +55,7 @@ public class WristSubsystem extends SubsystemBase{
         wristAbsolute = intake.getAbsoluteEncoder(Type.kDutyCycle);
         wristPID = new PIDController(4, 0.00, 0.1);
         
+        intake.set(0);
         intakeEncoder = intake.getEncoder();
         intakeEncoder.setPosition(0);
     }
