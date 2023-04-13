@@ -57,8 +57,8 @@ public class Swerve extends SubsystemBase {
             getYaw(),
             getPositions(), 
             new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), 
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(2, 2, 2)
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.0005, 0.0005, 0.0005), 
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.05, 0.05, 0.05)
         );
         
         // if(ll.targetingResults.targets_Fiducials.length>1){
@@ -215,7 +215,7 @@ public class Swerve extends SubsystemBase {
     private Pose2d tempPose;
     public void addVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.008){
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.018){
                 if(DriverStation.getAlliance() == Alliance.Blue){
                     estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
                  }else{
@@ -235,13 +235,14 @@ public class Swerve extends SubsystemBase {
             if(ll.targetingResults.targets_Fiducials[0].ta > 0.01){
                 if(DriverStation.getAlliance() == Alliance.Blue){
                     estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
-                }else{
-                    tempPose = new Pose2d(
-                        16.54-ll.targetingResults.getBotPose2d_wpiBlue().getX(),
-                        ll.targetingResults.getBotPose2d_wpiBlue().getY(),
-                        ll.targetingResults.getBotPose2d_wpiBlue().getRotation().times(-1).rotateBy(Rotation2d.fromDegrees(180))
-                        );                
-                    }
+                 }else{
+                     tempPose = new Pose2d(
+                         16.54-ll.targetingResults.getBotPose2d_wpiBlue().getX(),
+                         8.02-ll.targetingResults.getBotPose2d_wpiBlue().getY(),
+                         ll.targetingResults.getBotPose2d_wpiBlue().getRotation().rotateBy(Rotation2d.fromDegrees(180))//times(-1).
+                         );
+                     estimator.addVisionMeasurement(tempPose, Timer.getFPGATimestamp());                
+                 }
             }
         }
     }
