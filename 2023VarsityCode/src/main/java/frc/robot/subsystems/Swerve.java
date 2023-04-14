@@ -57,8 +57,8 @@ public class Swerve extends SubsystemBase {
             getYaw(),
             getPositions(), 
             new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.00000001, 0.00000001, 0.00000001), 
-            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.00000025, 0.00000025, 0.00000025)
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.00000002, 0.0000001, 0.00000001), 
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.000003, 0.0000002, 0.000008)//00000015
         );
         
 
@@ -211,7 +211,7 @@ public class Swerve extends SubsystemBase {
     private Pose2d tempPose;
     public void addVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.002 || ll.targetingResults.targets_Fiducials.length > 1){
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.008){
                 if(DriverStation.getAlliance() == Alliance.Blue){
                     estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
                  }else{
