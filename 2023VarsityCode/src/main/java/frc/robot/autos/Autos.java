@@ -5,9 +5,14 @@ import java.util.Map;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -87,7 +92,10 @@ public final class Autos {
             new PathConstraints(2, 0.75)));
     }
     
-
+    public static Command newBumpPath(){
+        return autoBuilder.fullAuto(PathPlanner.loadPathGroup("NewBumpAuto", 
+            new PathConstraints(4, 3)));
+    }
 
     public static Command bumpPath(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("BumpPath", 

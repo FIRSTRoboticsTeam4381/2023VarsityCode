@@ -3,6 +3,8 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.Constants;
@@ -75,20 +77,23 @@ public class TeleopSwerve extends CommandBase {
         }
         double x = 0;
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        if(controller.L1().getAsBoolean() && (Math.abs(s_Swerve.getYaw().getDegrees()%360) < 90)){
+        
+
+        if(controller.L1().getAsBoolean() && (Math.abs(s_Swerve.getYaw().getDegrees())%360 < 90 || Math.abs(s_Swerve.getYaw().getDegrees())%360 > 270)){
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, speedMod*steerAlign(0, s_Swerve.getYaw().getDegrees()), true, openLoop);
-        }else if(controller.L1().getAsBoolean() && RobotContainer.stationSelector.getPos()==Position.HYBRID){
-            translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
+        }else if(controller.L1().getAsBoolean() && DriverStation.getAlliance() == Alliance.Red){
+            translation = new Translation2d(
+                -(redPlacePos-s_Swerve.getPose().getX())*0.75,
+                -(getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getPose().getY())*1.25
+            ).times(3);
             s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
-        }else if(controller.L1().getAsBoolean() && (ll.targetingResults.targets_Retro.length > 0 || ll.targetingResults.targets_Fiducials.length > 0)){
-            if(ll.targetingResults.targets_Retro.length > 0){
-                x = ll.targetingResults.targets_Retro[0].tx*-0.025;
-            }else if(ll.targetingResults.targets_Fiducials.length > 0){
-                x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
-            }
-            translation = new Translation2d(-yAxis*speedMod, x*speedMod).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+        }else if(controller.L1().getAsBoolean() && DriverStation.getAlliance() == Alliance.Blue){
+            translation = new Translation2d(
+                (bluePlacePos-s_Swerve.getPose().getX())*0.75,
+                (getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getPose().getY())*1.25
+            ).times(3);
+            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
         }else{
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, rotation*speedMod, s_Swerve.getFieldRel(), openLoop);
@@ -114,4 +119,36 @@ public class TeleopSwerve extends CommandBase {
         rotation *= Constants.Swerve.maxAngularVelocity;
         return rotation;
     }
+
+    public final static double[] conePoints = {0.58,1.66,2.25,3.34,3.87,5.11};
+    public final static double[] cubePoints = {1.12,2.80,4.53};
+    public final static double redPlacePos = 14.75;
+    public final static double bluePlacePos = 1.78;
+
+    public double getClosest(double[] array){
+        double closest = array[0];
+        for(int i = 1; i < array.length; i++){
+            if(Math.abs(array[i]-s_Swerve.getPose().getY()) < 
+                Math.abs(closest-s_Swerve.getPose().getY()))
+            {
+                closest = array[i];
+            }
+        }
+        return closest;
+    }
+
+    /*Old Lineup  (redPlacePos-s_Swerve.getPose().getY())*0.01
+     * if(controller.L1().getAsBoolean() && RobotContainer.stationSelector.getPos()==Position.HYBRID){
+            translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
+        }else if(controller.L1().getAsBoolean() && (ll.targetingResults.targets_Retro.length > 0 || ll.targetingResults.targets_Fiducials.length > 0)){
+            if(ll.targetingResults.targets_Retro.length > 0){
+                x = ll.targetingResults.targets_Retro[0].tx*-0.025;
+            }else if(ll.targetingResults.targets_Fiducials.length > 0){
+                x = ll.targetingResults.targets_Fiducials[0].tx*-0.025;
+            }
+            translation = new Translation2d(-yAxis*speedMod, x*speedMod).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), false, openLoop);
+        }else
+     */
 }

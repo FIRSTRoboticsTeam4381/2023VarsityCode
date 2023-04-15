@@ -209,7 +209,7 @@ public class Swerve extends SubsystemBase {
     }
     */
     private Pose2d tempPose;
-    public void addVision(){
+    public void addVisionAuto(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
             if(ll.targetingResults.targets_Fiducials[0].ta > 0.008){
                 if(DriverStation.getAlliance() == Alliance.Blue){
@@ -226,19 +226,18 @@ public class Swerve extends SubsystemBase {
         }
     }
 
+    public void addVisionTele(){
+        if(ll.targetingResults.targets_Fiducials.length > 0){
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.008){
+                estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp() - (ll.targetingResults.latency_pipeline/1000.0) - (ll.targetingResults.latency_capture/1000.0));
+            }
+        }
+    }
+
     public void resetToVision(){
         if(ll.targetingResults.targets_Fiducials.length > 0){
-            if(ll.targetingResults.targets_Fiducials[0].ta > 0.01){
-                if(DriverStation.getAlliance() == Alliance.Blue){
-                    estimator.addVisionMeasurement(ll.targetingResults.getBotPose2d_wpiBlue(), Timer.getFPGATimestamp());
-                 }else{
-                     tempPose = new Pose2d(
-                         16.54-ll.targetingResults.getBotPose2d_wpiBlue().getX(),
-                         8.02-ll.targetingResults.getBotPose2d_wpiBlue().getY(),
-                         ll.targetingResults.getBotPose2d_wpiBlue().getRotation().rotateBy(Rotation2d.fromDegrees(180))//times(-1).
-                         );
-                     estimator.addVisionMeasurement(tempPose, Timer.getFPGATimestamp());                
-                 }
+            if(ll.targetingResults.targets_Fiducials[0].ta > 0.008){
+                estimator.resetPosition(getYaw(), getPositions(), ll.targetingResults.getBotPose2d_wpiBlue());
             }
         }
     }
@@ -246,7 +245,6 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic(){
         estimator.update(getYaw(), getPositions());
-        addVision();
         SmartDashboard.putNumber("Gyro Angle", getYaw().getDegrees());
         SmartDashboard.putNumber("Gyro Roll", getRoll());
 

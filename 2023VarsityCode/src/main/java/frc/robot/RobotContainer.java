@@ -78,6 +78,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("Two Piece Bump", Autos.bumpPath());
     m_AutoChooser.addOption("Cone Park NO MOBILITY", Autos.conePark());
     m_AutoChooser.addOption("FourPiece???", Autos.fourPiece());
+    m_AutoChooser.addOption("Bump 3 piece", Autos.newBumpPath());
     SmartDashboard.putData(m_AutoChooser);
 
   }
