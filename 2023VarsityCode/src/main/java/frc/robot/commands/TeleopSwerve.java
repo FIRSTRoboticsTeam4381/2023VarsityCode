@@ -52,7 +52,9 @@ public class TeleopSwerve extends CommandBase {
         this.controller = controller;
         this.openLoop = openLoop;
         
-        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);    
+        ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);  
+        
+        s_Swerve.resetEstimator();
     }
 
     @Override
@@ -84,25 +86,25 @@ public class TeleopSwerve extends CommandBase {
             s_Swerve.drive(translation, speedMod*steerAlign(0, s_Swerve.getYaw().getDegrees()), true, openLoop);
         }else if(controller.L1().getAsBoolean() && DriverStation.getAlliance() == Alliance.Red){
             translation = new Translation2d(
-                -(redPlacePos-s_Swerve.getPose().getX())*0.75,
-                -(getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getPose().getY())*1.25
+                -(redPlacePos-s_Swerve.getVisionPose().getX())*0.9,
+                -(getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getVisionPose().getY())*1.4
             ).times(3);
             s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
         }else if(controller.L1().getAsBoolean() && DriverStation.getAlliance() == Alliance.Blue){
             translation = new Translation2d(
-                (bluePlacePos-s_Swerve.getPose().getX())*0.75,
-                (getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getPose().getY())*1.25
+                (bluePlacePos-s_Swerve.getVisionPose().getX())*0.9,
+                (getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getVisionPose().getY())*1.4
             ).times(3);
             s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
         }else{
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, rotation*speedMod, s_Swerve.getFieldRel(), openLoop);
+            s_Swerve.drive(translation, rotation*speedMod, true, openLoop);
         }
 
         if(controller.square().getAsBoolean()){
-            s_Swerve.resetToVision();
+            s_Swerve.resetEstimator();
         }
-        //s_Swerve.addVision();
+        s_Swerve.addVisionTele();
     }
 
 
@@ -120,16 +122,16 @@ public class TeleopSwerve extends CommandBase {
         return rotation;
     }
 
-    public final static double[] conePoints = {0.58,1.66,2.25,3.34,3.87,5.11};
-    public final static double[] cubePoints = {1.12,2.80,4.53};
-    public final static double redPlacePos = 14.75;
-    public final static double bluePlacePos = 1.78;
+    public final static double[] conePoints = {0.5127,1.6303,2.1891,3.3067,3.8655,4.9831};
+    public final static double[] cubePoints = {1.0715,2.7479,4.4243};
+    public final static double redPlacePos = 14.85;
+    public final static double bluePlacePos = 1.8145;
 
     public double getClosest(double[] array){
         double closest = array[0];
         for(int i = 1; i < array.length; i++){
-            if(Math.abs(array[i]-s_Swerve.getPose().getY()) < 
-                Math.abs(closest-s_Swerve.getPose().getY()))
+            if(Math.abs(array[i]-s_Swerve.getVisionPose().getY()) < 
+                Math.abs(closest-s_Swerve.getVisionPose().getY()))
             {
                 closest = array[i];
             }
@@ -137,7 +139,7 @@ public class TeleopSwerve extends CommandBase {
         return closest;
     }
 
-    /*Old Lineup  (redPlacePos-s_Swerve.getPose().getY())*0.01
+    /*Old Lineup  (redPlacePos-s_Swerve.getVisionPose().getY())*0.01
      * if(controller.L1().getAsBoolean() && RobotContainer.stationSelector.getPos()==Position.HYBRID){
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);

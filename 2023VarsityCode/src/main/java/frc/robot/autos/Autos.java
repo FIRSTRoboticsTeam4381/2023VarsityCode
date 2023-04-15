@@ -41,7 +41,6 @@ public final class Autos {
         Map.entry("Preplace", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREPLACECUBE))),
         Map.entry("PreBump", RobotContainer.armCommand.prePlace(ArmPositions.getArmState(Position.PREBUMP))),
         //4Piece positions
-        //Map.entry("AddVision", new InstantCommand(() -> RobotContainer.s_Swerve.resetToVision())),
         Map.entry("Drop", RobotContainer.armCommand.placeIntake(0.4)),
         Map.entry("Shoot", RobotContainer.armCommand.placeIntake(1)),
         Map.entry("Intake", RobotContainer.armCommand.intakePosition(ArmPositions.getArmState(Position.CUBE))),
@@ -89,7 +88,7 @@ public final class Autos {
 
     public static Command conePark(){
         return autoBuilder.fullAuto(PathPlanner.loadPathGroup("ConePark", 
-            new PathConstraints(2, 0.75)));
+            new PathConstraints(1.25, 0.75)));
     }
     
     public static Command newBumpPath(){

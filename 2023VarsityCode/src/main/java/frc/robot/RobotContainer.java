@@ -72,13 +72,12 @@ public class RobotContainer {
     m_AutoChooser.setDefaultOption("None", Autos.none());
     //m_AutoChooser.addOption("Three Piece Grab", Autos.threePiece());
     //m_AutoChooser.addOption("ConePark", Autos.coneBalance());
-    m_AutoChooser.addOption("Three Piece Place", Autos.threePiecePlace());
+    m_AutoChooser.addOption("3 Piece Flat", Autos.threePiecePlace());
     m_AutoChooser.addOption("Two Piece Balance", Autos.twoPieceBalance());
-    m_AutoChooser.addOption("Cone Park Pickup", Autos.coneParkPickup());
-    m_AutoChooser.addOption("Two Piece Bump", Autos.bumpPath());
-    m_AutoChooser.addOption("Cone Park NO MOBILITY", Autos.conePark());
-    m_AutoChooser.addOption("FourPiece???", Autos.fourPiece());
-    m_AutoChooser.addOption("Bump 3 piece", Autos.newBumpPath());
+    m_AutoChooser.addOption("Cone Pickup Park", Autos.coneParkPickup());
+    m_AutoChooser.addOption("2 Piece Bump", Autos.bumpPath());
+    m_AutoChooser.addOption("Mobility Auto", Autos.conePark());
+    m_AutoChooser.addOption("3 Piece Bump", Autos.newBumpPath());
     SmartDashboard.putData(m_AutoChooser);
 
   }

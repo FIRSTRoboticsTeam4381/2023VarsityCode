@@ -102,9 +102,7 @@ Logger.getInstance().start(); // Start logging! No more data receivers, replay s
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    RobotContainer.s_Swerve.addVisionAuto();
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
@@ -121,7 +119,6 @@ Logger.getInstance().start(); // Start logging! No more data receivers, replay s
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    RobotContainer.s_Swerve.addVisionTele();
     SmartDashboard.putString("POSITION", RobotContainer.stationSelector.getPos().toString());
     SmartDashboard.putString("TYPE", RobotContainer.stationSelector.getType().toString());
   }
