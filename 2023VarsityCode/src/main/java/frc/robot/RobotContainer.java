@@ -114,7 +114,7 @@ public class RobotContainer {
     );
 
     //Auto Testing Stuff
-    
+    driveController.povUp().onTrue(armCommand.preplaceElevator(ArmPositions.getArmState(Position.HIGHPLACE)).andThen(armCommand.placeAndReturn(ArmPositions.getArmState(Position.HIGHPLACE))));
     
     driveController.touchpad().or(specialsController.touchpad()).onTrue(armCommand.returnToHome(-0.1));
 

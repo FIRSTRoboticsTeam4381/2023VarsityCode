@@ -81,21 +81,9 @@ public class TeleopSwerve extends CommandBase {
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
         
 
-        if(controller.L1().getAsBoolean() && (Math.abs(s_Swerve.getYaw().getDegrees())%360 < 90 || Math.abs(s_Swerve.getYaw().getDegrees())%360 > 270)){
+        if(controller.L1().getAsBoolean()){
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, speedMod*steerAlign(0, s_Swerve.getYaw().getDegrees()), true, openLoop);
-        }else if(controller.L1().getAsBoolean() && DriverStation.getAlliance() == Alliance.Red){
-            translation = new Translation2d(
-                -(redPlacePos-s_Swerve.getVisionPose().getX())*0.9,
-                -(getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getVisionPose().getY())*1.4
-            ).times(3);
-            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
-        }else if(controller.L1().getAsBoolean() && DriverStation.getAlliance() == Alliance.Blue){
-            translation = new Translation2d(
-                (bluePlacePos-s_Swerve.getVisionPose().getX())*0.9,
-                (getClosest((RobotContainer.stationSelector.getType()==Type.CONE)?conePoints:cubePoints)-s_Swerve.getVisionPose().getY())*1.4
-            ).times(3);
-            s_Swerve.drive(translation, speedMod*steerAlign(180, s_Swerve.getYaw().getDegrees()), true, openLoop);
         }else{
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, rotation*speedMod, true, openLoop);
