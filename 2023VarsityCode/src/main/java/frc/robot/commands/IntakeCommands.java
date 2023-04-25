@@ -124,7 +124,6 @@ public class IntakeCommands {
     public SequentialCommandGroup intakePosition(double[] state){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new InstantCommand(() -> swerve.setFieldRel(state[3] == 0)),
                 armToAngle(state[0]),
                 elevatorToHeight(state[1]),
                 wristToPosition(state[2]),
@@ -154,7 +153,6 @@ public class IntakeCommands {
     public SequentialCommandGroup returnToHome(double holdPower){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new InstantCommand(() -> swerve.setFieldRel(true)),
                 new InstantCommand(() -> wrist.setIntakeSpeed(holdPower)),
                 new InstantCommand(() -> leds.setBlinks(0)),
                 wristToPosition(ArmPositions.getArmState(Position.TRANSIT)[2]),

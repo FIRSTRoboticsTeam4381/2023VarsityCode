@@ -29,13 +29,13 @@ public final class ArmPositions {
             case HUMANCONE://UNTESTED
             //Old elevator -12.93 Old wrist 83.23
                 // UPRIGHT return new double[] {25.27,-14.35,98, 0};
-                return new double[] {21.7,-10,106, 0};
+                return new double[] {21.7,-9.7,106, 0};
             case UPRIGHTOVERRIDE:
                 return new double[] {25.27,-14.35,98, 0};
             case HUMANSLIDE://UNTESTED
                 return new double[] {-76.0,0,23.5, 0};
             case HYBRID://UNTESTED
-                return new double[] {74,0,65, 0, 0.5};
+                return new double[] {55,-0.1,80, 0, 0.5};
             case TIPCONE://GOOD - Broke encoder though
             //Old{-98,-5.2,-68.1
                 return new double[] {113.44,-0.86,13.60, 0};
@@ -47,6 +47,9 @@ public final class ArmPositions {
                 return new double[] {-90, 0, 45};
             case SPIT:
                 return new double[] {0,0,77, 0, 1};
+            case UPPERPRE:
+                return new double[] {55, 0, 0, 0};
+
             default:
                 return new double[] {0,0,0};
         }
@@ -72,7 +75,8 @@ public final class ArmPositions {
         PREPLACECUBE,
         PREBUMP,
         SPIT,
-        UPRIGHTOVERRIDE
+        UPRIGHTOVERRIDE,
+        UPPERPRE
     }
 
     public enum Type{
