@@ -25,7 +25,6 @@ public class IntakeCommands {
         this.swerve = swerve;
         this.leds = leds;
     }
-    private double prevArmAngle = 0;
 
     public FunctionalCommand armToAngle(double angle){
         return new FunctionalCommand(
@@ -202,5 +201,22 @@ public class IntakeCommands {
         );
     }
 
+
+    public SequentialCommandGroup demo(){
+        return new SequentialCommandGroup(
+            wristToPosition(0),
+            armToAngle(-80),
+            new WaitCommand(0.25),
+            armToAngle(80),
+            new WaitCommand(0.25),
+            armToAngle(0),
+            new WaitCommand(0.25),
+            elevatorToHeight(-30),
+            new WaitCommand(0.5),
+            elevatorToHeight(0),
+            new WaitCommand(0.1),
+            wristToPosition(77)
+        );
+    }
 
 }

@@ -69,30 +69,19 @@ public class TeleopSwerve extends CommandBase {
         rAxis = (Math.abs(rAxis) < Constants.stickDeadband) ? 0 : rAxis;
         rotation = rAxis * Constants.Swerve.maxAngularVelocity;
 
-        double speedMod = (Math.abs(RobotContainer.elevator.getElevateHeight()) > 10)?0.3:1;
-        
-        if(RobotContainer.stationSelector.getPos() == Position.HYBRID){
-            LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 2);
-        }else{
-            //LimelightHelpers.setPipelineIndex(Constants.LimeLightName, (RobotContainer.stationSelector.getType() == Type.CUBE)?1:0);
-            LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 3);
-        }
-        double x = 0;
+        double speedMod = (Math.abs(RobotContainer.elevator.getElevateHeight()) > 10)?0.3:1;  
+            
         ll = LimelightHelpers.getLatestResults(Constants.LimeLightName);
-        
+        LimelightHelpers.setPipelineIndex(Constants.LimeLightName, 0);
 
-        if(controller.L1().getAsBoolean()){
-            translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
-            s_Swerve.drive(translation, speedMod*steerAlign(0, s_Swerve.getYaw().getDegrees()), true, openLoop);
+        if(controller.getL2Axis() > 0.75 && ll.targetingResults.targets_Retro.length > 0){
+            translation = new Translation2d(0, 0).times(Constants.Swerve.maxSpeed);
+            s_Swerve.drive(translation, -0.1*ll.targetingResults.targets_Retro[0].tx, true, openLoop);
         }else{
             translation = new Translation2d(yAxis*speedMod, xAxis*speedMod).times(Constants.Swerve.maxSpeed);
             s_Swerve.drive(translation, rotation*speedMod, true, openLoop);
         }
 
-        if(controller.square().getAsBoolean()){
-            s_Swerve.resetEstimator();
-        }
-        s_Swerve.addVisionTele();
     }
 
 

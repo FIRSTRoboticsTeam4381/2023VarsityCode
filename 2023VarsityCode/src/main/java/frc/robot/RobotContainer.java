@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -40,9 +41,6 @@ public class RobotContainer {
   /* Controllers */
   private final CommandPS4Controller driveController = new CommandPS4Controller(0);
   private final CommandPS4Controller specialsController = new CommandPS4Controller(1);
-
-  /* Driver Buttons */
-  private final Trigger zeroSwerve = driveController.options();
   
   /* Subsystems */
   public static final Swerve s_Swerve = new Swerve();
@@ -91,96 +89,93 @@ public class RobotContainer {
   private void configureButtonBindings() {
     
     /* Swerve Reset Button */
-    zeroSwerve
+    driveController.options()
       .onTrue(new InstantCommand(() -> s_Swerve.zeroGyro(0))
       .alongWith(new InstantCommand(() -> s_Swerve.resetOdometry(new Pose2d(8.27, 4.01, Rotation2d.fromDegrees(0))))));     
 
-    //driveController.cross().onTrue(new InstantCommand(() -> s_Swerve.addVisionMeasurement()));
-
-    
-    driveController.axisGreaterThan(4, 0.5).onTrue(
-      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        armCommand.placeElevator(ArmPositions.getArmState(Position.SPIT))))
-    );
 
     driveController.R1().onTrue(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        armCommand.preplaceElevator(ArmPositions.getArmState(stationSelector.getPos()))))
+        armCommand.preplaceElevator(ArmPositions.getArmState(Position.HYBRID))
+      ))
     );
 
-    driveController.cross().onTrue(
+    driveController.R1().onFalse(
       new InstantCommand(() -> CommandScheduler.getInstance().schedule(
-        armCommand.placeAndReturn(ArmPositions.getArmState(stationSelector.getPos()))))
+        armCommand.placeAndReturn(ArmPositions.getArmState(Position.HYBRID))
+      ))
     );
 
-    //Auto Testing Stuff
-    driveController.povUp().onTrue(armCommand.preplaceElevator(ArmPositions.getArmState(Position.HIGHPLACE)).andThen(armCommand.placeAndReturn(ArmPositions.getArmState(Position.HIGHPLACE))));
+    driveController.square().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.preplaceElevator(ArmPositions.getArmState(Position.HIGHPLACE))
+      ))
+    );
+
+    driveController.square().onFalse(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.placeAndReturn(ArmPositions.getArmState(Position.HIGHPLACE))
+      ))
+    );
+
+    driveController.triangle().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.preplaceElevator(ArmPositions.getArmState(Position.MIDPLACE))
+      ))
+    );
+
+    driveController.triangle().onFalse(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.placeAndReturn(ArmPositions.getArmState(Position.MIDPLACE))
+      ))
+    );
+
+    driveController.circle().onTrue(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.preplaceElevator(ArmPositions.getArmState(Position.SHOOTHIGHCUBE))
+      ))
+    );
+
+    driveController.circle().onFalse(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTHIGHCUBE))
+      ))
+    );
+
+    driveController.cross().onFalse(
+      new InstantCommand(() -> CommandScheduler.getInstance().schedule(
+        armCommand.placeAndReturn(ArmPositions.getArmState(Position.SHOOTMIDCUBE))
+      ))
+    );
+
     
     driveController.touchpad().or(specialsController.touchpad()).onTrue(armCommand.returnToHome(-0.1));
 
-    specialsController.R1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CUBE)));
-    specialsController.L1().onTrue(new InstantCommand(() -> stationSelector.setType(Type.CONE)));
+    driveController.share().onTrue(armCommand.demo());
 
-    specialsController.povUp().onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HIGHPLACE)));
-    specialsController.povDown().onTrue(new InstantCommand(() -> stationSelector.setPos(Position.HYBRID)));
-    specialsController.povLeft()
-      .or(specialsController.povRight())
-      .onTrue(new InstantCommand(() -> stationSelector.setPos(Position.MIDPLACE)));
-
-
-    specialsController.R1()
-      .and(specialsController.triangle())
-      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANSLIDE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(-0.1))));
-
-    specialsController.R1()
-      .and(specialsController.circle())
+    driveController.povDown()
+      .and(driveController.L1())
       .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.AUTOCUBE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
       .andThen(armCommand.returnToHome(-0.1))));
 
-    specialsController.R1()
-      .and(specialsController.square())
-      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCUBE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(-0.1))));
-
-    specialsController.R1()
-      .and(specialsController.cross())
+    driveController.povUp()
+      .and(driveController.L1())
       .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.CUBE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
       .andThen(armCommand.returnToHome(-0.1))));
 
-    specialsController.L1()
-      .and(specialsController.triangle())
-      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANSLIDE))
+    driveController.povLeft()
+      .and(driveController.L1())
+      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCUBE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(0))));
+      .andThen(armCommand.returnToHome(-0.1))));
 
-    specialsController.L1()
-      .and(specialsController.circle())
-      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.TIPCONE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(0))));
-
-    specialsController.L1()
-      .and(specialsController.square())
+    driveController.povRight()
+      .and(driveController.L1())
       .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.HUMANCONE))
       .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
       .andThen(armCommand.returnToHome(0))));
-
-    specialsController.L1()
-      .and(specialsController.options())
-      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.UPRIGHTOVERRIDE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(0))));
-
-    specialsController.L1()
-      .and(specialsController.cross())
-      .onTrue(armCommand.intakePosition(ArmPositions.getArmState(ArmPositions.Position.UPCONE))
-      .andThen(new WaitUntilCommand(() -> Math.abs(wrist.getIntakeVelocity()) < 200 || specialsController.touchpad().getAsBoolean())
-      .andThen(armCommand.returnToHome(-0.1))));
     
   }
 
