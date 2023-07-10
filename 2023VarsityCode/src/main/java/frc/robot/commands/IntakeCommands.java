@@ -18,7 +18,7 @@ public class IntakeCommands {
     private Swerve swerve;
     private LEDS leds;
 
-    public IntakeCommands(ArmAngleSubsystem arm, ElevatorSubsystem elevator, WristSubsystem wrist, Swerve swerve, LEDS leds){
+    public IntakeCommands(ArmAngleSubsystem arm, ElevatorSubsystem elevator, WristSubsystem wrist, Swerve swerve){
         this.arm = arm;
         this.elevator = elevator;
         this.wrist = wrist;

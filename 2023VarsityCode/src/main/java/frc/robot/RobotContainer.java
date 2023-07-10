@@ -45,12 +45,12 @@ public class RobotContainer {
   private final Trigger zeroSwerve = driveController.options();
   
   /* Subsystems */
+  public static final LEDS leds = new LEDS();
   public static final Swerve s_Swerve = new Swerve();
   public static final ArmAngleSubsystem arm = new ArmAngleSubsystem();
   public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
   public static final WristSubsystem wrist = new WristSubsystem();
-  public static final LEDS leds = new LEDS();
-  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist, s_Swerve, leds);
+  public static final IntakeCommands armCommand = new IntakeCommands(arm, elevator, wrist, s_Swerve);
 
   public static final StationSelector stationSelector = new StationSelector(Position.HIGHPLACE, Type.CONE);
 

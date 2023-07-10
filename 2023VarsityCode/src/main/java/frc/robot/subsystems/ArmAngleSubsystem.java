@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.Conversions;
@@ -33,6 +34,8 @@ public class ArmAngleSubsystem extends SubsystemBase{
     private TrapezoidProfile.State m_ArmSetPoint = new TrapezoidProfile.State();
     private double anglePos = 0.5;
 
+    private DigitalInput releaseSwitch;
+
     
     public ArmAngleSubsystem(){
         armTilt1 = new CANSparkMax(Constants.IntakeArm.armTilt1CAN, MotorType.kBrushless);
@@ -48,6 +51,8 @@ public class ArmAngleSubsystem extends SubsystemBase{
         //armTilt2.follow(armTilt1,true);
         armTilt2.setIdleMode(IdleMode.kBrake);
         armTilt2.set(0);
+
+        releaseSwitch = new DigitalInput(0);
 
         /*
         armTiltPID = armTilt1.getPIDController();
@@ -99,7 +104,10 @@ public class ArmAngleSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("Arm Absolute", (armPivotEncoder.getPosition()-0.5)*360);
         SmartDashboard.putNumber("Arm Angle Setpoint", Conversions.armEncoderToDegrees(anglePos));
 
-        
+        // Switch usage
+        SmartDashboard.putBoolean("Arm Angle Release", !releaseSwitch.get());
+        armTilt1.setIdleMode(!releaseSwitch.get() ? IdleMode.kCoast : IdleMode.kBrake);
+        armTilt2.setIdleMode(!releaseSwitch.get() ? IdleMode.kCoast : IdleMode.kBrake);
         
         TrapezoidProfile armProfile = new TrapezoidProfile(
             new Constraints(6, 5),//Could use a little less accel

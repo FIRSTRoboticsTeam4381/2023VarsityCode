@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.Conversions;
@@ -30,6 +31,8 @@ public class ElevatorSubsystem extends SubsystemBase{
     private double elevatePos = 0;
     private TrapezoidProfile.State m_ElevatorSetPoint = new TrapezoidProfile.State();
 
+    private DigitalInput releaseSwitch;
+
 
     public ElevatorSubsystem(){
         armExtend = new CANSparkMax(Constants.IntakeArm.armExtensionCAN, MotorType.kBrushless);
@@ -43,6 +46,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         armExtendPID.setOutputRange(-0.75, 0.75);
         armExtendPID.setSmartMotionMaxAccel(2*9.4,0);
         armExtend.setIdleMode(IdleMode.kBrake);
+
+        releaseSwitch = new DigitalInput(1);
     }
 
 
@@ -62,6 +67,10 @@ public class ElevatorSubsystem extends SubsystemBase{
     public void periodic(){
         SmartDashboard.putNumber("Arm Extend Encoder", armExtensionEncoder.getPosition());     
         SmartDashboard.putNumber("Arm Extend Setpoint", elevatePos);
+
+        // Switch usage
+        SmartDashboard.putBoolean("Elevator Release Switch", !releaseSwitch.get());
+        armExtend.setIdleMode(!releaseSwitch.get() ? IdleMode.kCoast : IdleMode.kBrake);
   
         TrapezoidProfile elevateProfile = new TrapezoidProfile(
             new Constraints(2000, 300),//Little more accel, higher power/velocity
