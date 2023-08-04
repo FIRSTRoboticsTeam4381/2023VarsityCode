@@ -5,6 +5,7 @@ public final class ArmPositions {
 
     public static final double[] getArmState(Position pos){
         //Shifted stuff about +8degrees when changed head
+        // Angle, elevator, wrist
         switch(pos){
             case TRANSIT://UNTESTED
                 return new double[] {0,0,77};
@@ -29,7 +30,7 @@ public final class ArmPositions {
             case HUMANCONE://UNTESTED
             //Old elevator -12.93 Old wrist 83.23
                 // UPRIGHT return new double[] {25.27,-14.35,98, 0};
-                return new double[] {21.7,-9.7,106, 0};
+                return new double[] {21.7,-8.0,106, 0};
             case UPRIGHTOVERRIDE:
                 return new double[] {25.27,-14.35,98, 0};
             case HUMANSLIDE://UNTESTED
