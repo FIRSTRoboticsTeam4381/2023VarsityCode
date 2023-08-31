@@ -11,9 +11,9 @@ public final class ArmPositions {
                 return new double[] {0,0,77};
             case HIGHPLACE://UNTESTED
             //OLD {49,-32,84.3}
-                return new double[] {50,-30,74,0.2, 1};
+                return new double[] {48.75,-30,74,0.2, 1};
             case MIDPLACE://UNTESTED
-                return new double[] {45,-13,80, 0, 1};
+                return new double[] {45,-15,80, 0, 1};
             case PREPLACECUBE:
                 return new double[] {55, 0, 0};
             case PREPLACECONE:
@@ -26,11 +26,11 @@ public final class ArmPositions {
             case AUTOCUBE://GOOD
                 return new double[] {-99,-0.4,-44.6, 0};
             case HUMANCUBE://UNTESTED
-                return new double[] {21.7,-10,106, 0};
+                return new double[] {22.0,-13,106, 0};
             case HUMANCONE://UNTESTED
             //Old elevator -12.93 Old wrist 83.23
                 // UPRIGHT return new double[] {25.27,-14.35,98, 0};
-                return new double[] {21.7,-8.0,106, 0};
+                return new double[] {28.0,-7.5,70, 0};
             case UPRIGHTOVERRIDE:
                 return new double[] {25.27,-14.35,98, 0};
             case HUMANSLIDE://UNTESTED
